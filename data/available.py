@@ -11,7 +11,7 @@ import math
 LABEL_COLUMN = 'Attack Type'
 NUM_COLUMNS = 81
 IMAGE_EDGE_SIZE = int(math.sqrt(NUM_COLUMNS))
-NUM_CLASSES = 8
+NUM_CLASSES = 9
 
 def clean_dataset(df: pd.DataFrame, verbose=True):
     # drop uneeded columns

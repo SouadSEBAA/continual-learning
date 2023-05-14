@@ -6,6 +6,7 @@ from utils import get_data_loader,checkattr
 
 from sklearn.metrics import confusion_matrix
 from data.available import NUM_CLASSES
+from prettytable import PrettyTable
 
 ####--------------------------------------------------------------------------------------------------------------####
 
@@ -13,11 +14,71 @@ from data.available import NUM_CLASSES
 ####----CLASSIFIER EVALUATION----####
 ####-----------------------------####
 
-def calc_precision(y, predicted):
-    pass
+def calc_metrics(cm):
+    # per class performance
+    per_class_performance = {
+        # 'precision': confusion_matrix.diagonal()/confusion_matrix.sum(axis=0),
+        'recall': cm.diagonal() / cm.sum(axis=1),
+    }
+    # if True and verbose:
+        # print(f'confusion_matrix.rows.sum = {confusion_matrix.sum(axis=1)}')
+        # print(f'confusion_matrix.cols.sum = {confusion_matrix.sum(axis=0)}')
+        # print(f'tp = {tp}')
+        # print(f'recall = {recall}, precision = {precision}')
+        # print(f'=> class {i}: \n\tprecision: {precision:.3f} \n\trecall: {recall:.3f} \n\tacc: {acc:.3f} \n\tf1-score: {f1:3f}' )
 
-def calc_recall(y, predicted):
-    pass
+    # average performance
+    tp_attacks = cm[1:, 1:].sum()
+    fp_attacks = cm[0, 1:].sum()
+    fn_attacks = cm[1:, 0].sum()
+    tn_attacks = cm[0, 0]
+    brief_cm = {
+        "Labeled Malicious": {
+            "Predicted Malicious": tp_attacks,
+            "Predicted Benign": fn_attacks,
+        },
+        "Labeled Benign": {
+            "Predicted Malicious": fp_attacks,
+            "Predicted Benign": tn_attacks,
+        }
+    }
+
+    average_performance = {}
+    average_performance['multiclass accuracy'] = cm.diagonal().sum() / cm.sum()
+    average_performance['binary accuracy'] = (tp_attacks+tn_attacks) / (tp_attacks+tn_attacks+fp_attacks+fn_attacks)
+    average_performance['FPR'] = fp_attacks / (tn_attacks + fp_attacks)
+    prec = average_performance['precision'] = tp_attacks / (tp_attacks + fp_attacks) 
+    rec = average_performance['recall'] = tp_attacks / (tp_attacks + fn_attacks)
+    average_performance['f1-score'] = 2*prec*rec / (prec + rec)
+
+    return per_class_performance, average_performance, brief_cm
+
+# def log_results(confusion_matrix, cm):
+#     print("\n\n"+"#"*60+"\nConfusion Matrix: \n"+"#"*60)
+#     tbl = PrettyTable()
+#     tbl.field_names = [''] + [f"Predicted {i}" for i in range(NUM_CLASSES)]
+#     for i in range(NUM_CLASSES):
+#         tbl.add_row([f"Labeled {i}"] + [int(confusion_matrix[i][j]) for j in range(NUM_CLASSES)])
+#     print(tbl)
+#     print("\n\n"+"#"*60+"\nCONTEXT RESULTS: \n"+"#"*60)
+#     print('\naverage accuracy over all {} contexts: {:.4f}'.format(args.contexts, average_accs))
+#     print("\nPer class perfomance:")
+#     tbl = PrettyTable()
+#     tbl.field_names = [''] + list(range(0, NUM_CLASSES))
+#     for metric in per_class_performance.keys():
+#         tbl.add_row([metric] + [round(per_class_performance[metric][i], 4) for i in range(NUM_CLASSES)])
+#     print(tbl)
+#     print("\nBrief Confusion Matrix (Binary): ")
+#     tbl = PrettyTable()
+#     tbl.field_names = ['', 'Predicted Malicious', 'Predicted Benign']
+#     for key in brief_cm:
+#         tbl.add_row([key, *brief_cm[key].values()])
+#     print(tbl)
+#     print("\nAverage perfomance:")
+#     tbl = PrettyTable()
+#     tbl.field_names = average_performance.keys()
+#     tbl.add_row([round(average_performance[metric], 4) for metric in tbl.field_names])
+#     print(tbl)
 
 def test_acc(model, dataset, batch_size=128, test_size=1024, verbose=True, context_id=None, allowed_classes=None,
              no_context_mask=False, cm=None, **kwargs):
@@ -75,6 +136,7 @@ def test_acc(model, dataset, batch_size=128, test_size=1024, verbose=True, conte
         if cm is not None:
             # confusion matrix with rows as real labels and columns as predictions
             cm += confusion_matrix(y, predicted, labels=range(NUM_CLASSES))
+            # cm = confusion_matrix(y, predicted, labels=range(NUM_CLASSES))
         total_correct += (predicted == y).sum().item()
         total_tested += len(x)
     accuracy = total_correct / total_tested
@@ -83,6 +145,7 @@ def test_acc(model, dataset, batch_size=128, test_size=1024, verbose=True, conte
     model.train(mode=mode)
     if verbose:
         print('=> accuracy: {:.3f}'.format(accuracy))
+        print('=> confusion matrix: {:.3f}'.format(accuracy))
     
     return accuracy if cm is None else (accuracy, cm)
 

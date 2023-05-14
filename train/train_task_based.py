@@ -92,18 +92,25 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
             # -for Domain-IL scenario, always all classes are active
             active_classes = None
         elif model.scenario=="class":
+            from data.load import define_classes_inclded_each_context
             # -for Class-IL scenario, the active classes are determined by [model.neg_samples]
             if model.neg_samples=="all-so-far":
                 # --> one <list> with active classes of all contexts so far
-                active_classes = list(range(model.classes_per_context * context))
+                # active_classes = list(range(model.classes_per_context * context))
+                active_classes = []
+                for cont in range(context):
+                    active_classes.extend(define_classes_inclded_each_context(kwargs['structure'], cont))
             elif model.neg_samples=="all":
                 #--> always all classes are active
                 active_classes = None
             elif model.neg_samples=="current":
                 #--> only those classes in the current or replayed context are active (i.e., train "as if Task-IL")
-                active_classes = [list(
-                    range(model.classes_per_context * i, model.classes_per_context * (i + 1))
-                ) for i in range(context)]
+                # active_classes = [list(
+                #     range(model.classes_per_context * i, model.classes_per_context * (i + 1))
+                # ) for i in range(context)]
+                active_classes = define_classes_inclded_each_context(kwargs['structure'], context-1)
+            active_classes = list(set(active_classes))
+            print(f'active classes {active_classes}')
 
         # Reset state of optimizer(s) for every context (if requested)
         if (not model.label=="SeparateClassifiers") and model.optim_type=="adam_reset":

@@ -3,7 +3,7 @@ import numpy as np
 from torchvision import transforms
 from torch.utils.data import ConcatDataset
 from data.manipulate import permutate_image_pixels, SubDataset, TransformedDataset
-from data.available import AVAILABLE_DATASETS, AVAILABLE_TRANSFORMS, DATASET_CONFIGS, networkDataset
+from data.available import AVAILABLE_DATASETS, AVAILABLE_TRANSFORMS, DATASET_CONFIGS, NUM_CLASSES
 
 from sklearn.model_selection import StratifiedKFold, KFold
 from sklearn.model_selection import train_test_split
@@ -188,34 +188,9 @@ def get_context_set(name, scenario, contexts, data_dir="./datasets", only_config
         for i in range(contexts):
             x_train, x_test, y_train, y_test = train_test_split(subsets[i][0], subsets[i][1])
 
-            # same distributions among contxts
-            if structure == 1:
-                included_classes = range(classes)
+            included_classes = define_classes_inclded_each_context(structure, i)
 
-            # add one class per context
-            if structure == 2:
-                included_classes = [j for j in range(i+1)]
-
-            # add classes incrementally in a random manner
-            if structure == 3:
-                if i == 0:
-                    included_classes = [0, 1, 2, 3]
-                elif i == 1:
-                    included_classes = [0,1]
-                elif i == 2:
-                    included_classes = [0]
-                elif i == 3:
-                    included_classes = [0,2,3]
-                elif i == 4:
-                    included_classes = [0,1,2,3,4]
-                elif i == 5:
-                    included_classes = [0,3,5]
-                elif i == 6:
-                    included_classes = [0,2,6]
-                elif i == 7:
-                    included_classes = [0,2,3,7]
-
-            print(f'\n\ncontext {i}: ')
+            print(f'\n\ncontext {i+1}: ')
 
             trainset = get_dataset(data_type, dir=data_dir, verbose=False, none=True)
             trainset.data = x_train
@@ -235,3 +210,36 @@ def get_context_set(name, scenario, contexts, data_dir="./datasets", only_config
     # Return tuple of train- and test-dataset, config-dictionary and number of classes per context
     return ((train_datasets, test_datasets), config)
 
+def define_classes_inclded_each_context(structure, i):
+    included_classes = []
+
+    # same distributions among contxts
+    if structure == 1:
+        included_classes = range(NUM_CLASSES)
+
+    # add one class per context
+    if structure == 2:
+        included_classes = [j for j in range(i+1)]
+
+    # add classes incrementally in a random manner
+    if structure == 3:
+        if i == 0:
+            included_classes = [0, 1, 2, 3]
+        elif i == 1:
+            included_classes = [0,1]
+        elif i == 2:
+            included_classes = [0]
+        elif i == 3:
+            included_classes = [0,2,3,8]
+        elif i == 4:
+            included_classes = [0,1,2,3,4]
+        elif i == 5:
+            included_classes = [0,3,5,8]
+        elif i == 6:
+            included_classes = [0,2,6]
+        elif i == 7:
+            included_classes = [0,2,3,7,8]
+        elif i == 8:
+            included_classes = [0,5,6,7,8]
+
+    return included_classes
