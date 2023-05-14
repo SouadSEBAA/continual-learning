@@ -9,6 +9,4 @@ matplotlib
 visdom
 jupyterlab
 ipywidgets
-tensorflow
-tensorflow_federated
 prettytable
