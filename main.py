@@ -5,7 +5,7 @@ import time
 import torch
 from torch import optim
 from federated.sampling import sample_iid, sample_noniid
-from federated.train import train_fl
+from federated.train import train_fl, train_fl_threaded
 from federated.utils import fl_exp_details
 # -custom-written libraries
 import utils
@@ -412,6 +412,12 @@ def run(args, verbose=False):
         else:
             raise ValueError("No sampling method selected")
 
+        # Get FL training function
+        if args.fl_threaded:
+            train_fl_fn = train_fl_threaded
+        else:
+            train_fl_fn = train_fl
+
         fl_exp_details(args.fl_iid, args.fl_num_clients, args.fl_frac, args.batch, args.iters, args.fl_global_iters)
 
     #-------------------------------------------------------------------------------------------------#
@@ -439,7 +445,7 @@ def run(args, verbose=False):
         # -perform training
         # Use federated learning?
         if args.fl:
-            train_fl(
+            train_fl_fn(
                 model,
                 train_datasets,
                 local_train_fn=train_fn,

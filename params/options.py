@@ -358,6 +358,7 @@ def add_fl_options(parser, **kwargs):
     fl_params.add_argument('--fl-frac', type=float, help='fraction of clients participating per round', default=1.0)
     fl_params.add_argument("--fl-iid", action="store_true", help="sample dataset in IID fashion (default)", default=True)
     fl_params.add_argument("--fl-non-iid", action="store_true", help="sample dataset in non-IID fashion", default=False)
+    fl_params.add_argument("--fl-threaded", action="store_true", help="Use multithreading", default=False)
     return parser
 
 ##-------------------------------------------------------------------------------------------------------------------##
