@@ -4,7 +4,7 @@ import numpy as np
 import time
 import torch
 from torch import optim
-from federated.sampling import sample_iid
+from federated.sampling import sample_iid, sample_noniid
 from federated.train import train_fl
 from federated.utils import fl_exp_details
 # -custom-written libraries
@@ -407,8 +407,10 @@ def run(args, verbose=False):
         # Get sample function
         if args.fl_iid:
             sample_fn = sample_iid
-        elif args.fl_noiid:
-            raise NotImplementedError("'sample_noiid' hasn't been implemented yet")
+        elif args.fl_non_iid:
+            sample_fn = sample_noniid
+        else:
+            raise ValueError("No sampling method selected")
 
         fl_exp_details(args.fl_iid, args.fl_num_clients, args.fl_frac, args.batch, args.iters, args.fl_global_iters)
 

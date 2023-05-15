@@ -357,7 +357,7 @@ def add_fl_options(parser, **kwargs):
     fl_params.add_argument('--fl-global-iters', type=int, help='number of rounds of training (global)', default=10)
     fl_params.add_argument('--fl-frac', type=int, help='fraction of clients participating per round', default=1)
     fl_params.add_argument("--fl-iid", action="store_true", help="sample dataset in IID fashion (default)", default=True)
-    fl_params.add_argument("--fl-no-iid", action="store_true", help="sample dataset in non-IID fashion", default=False)
+    fl_params.add_argument("--fl-non-iid", action="store_true", help="sample dataset in non-IID fashion", default=False)
     return parser
 
 ##-------------------------------------------------------------------------------------------------------------------##
