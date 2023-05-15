@@ -241,6 +241,7 @@ class Classifier(ContinualLearner, MemoryBuffer):
             y_hat = self(x)
             # -if needed, remove predictions for classes not active in the current context
             if active_classes is not None:
+                # class_entries = active_classes[-1] if type(active_classes[0])==list else active_classes
                 class_entries = active_classes[-1] if type(active_classes[0])==list else active_classes
                 y_hat = y_hat[:, class_entries]
 

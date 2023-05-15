@@ -383,13 +383,14 @@ def run(args, verbose=False):
     # -after each [acc_log], for visdom
     eval_cbs = [
         cb._eval_cb(log=args.acc_log, test_datasets=test_datasets, visdom=visdom, iters_per_context=args.iters,
-                    test_size=args.acc_n)
+                    test_size=args.acc_n),
     ] if (not checkattr(args, 'prototypes')) and (not checkattr(args, 'gen_classifier')) else [None]
     # -after each context, for plotting in pdf (when using prototypes / generative classifier, this is also for visdom)
     context_cbs = [
         cb._eval_cb(log=args.iters, test_datasets=test_datasets, plotting_dict=plotting_dict,
                     visdom=visdom if checkattr(args, 'prototypes') or checkattr(args, 'gen_classifier') else None,
-                    iters_per_context=args.iters, test_size=args.acc_n, S=args.eval_s if hasattr(args, 'eval_s') else 1)
+                    iters_per_context=args.iters, test_size=args.acc_n, S=args.eval_s if hasattr(args, 'eval_s') else 1),
+        cb._eval_after_each_context_cb(test_datasets=test_datasets, verbose=verbose),
     ]
 
     #-------------------------------------------------------------------------------------------------#
@@ -466,8 +467,10 @@ def run(args, verbose=False):
         context_acc, confusion_matrix = evaluate.test_acc(
             model, test_datasets[i], verbose=False, test_size=None, context_id=i, allowed_classes=list(
                 range(config['classes_per_context']*i, config['classes_per_context']*(i+1))
+                # range(NUM_CLASSES)
             ) if (args.scenario=="task" and not checkattr(args, 'singlehead')) else None,
             cm=confusion_matrix,
+            # active_classes=range(NUM_CLASSES)
         )
         if verbose:
             print(" - Context {}: {:.4f}".format(i + 1, context_acc))

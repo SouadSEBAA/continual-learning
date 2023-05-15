@@ -109,8 +109,8 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
                 #     range(model.classes_per_context * i, model.classes_per_context * (i + 1))
                 # ) for i in range(context)]
                 active_classes = define_classes_inclded_each_context(kwargs['structure'], context-1)
-            active_classes = list(set(active_classes))
-            print(f'active classes {active_classes}')
+            # active_classes = list(set(active_classes))
+            # print(f'active classes {active_classes}')
 
         # Reset state of optimizer(s) for every context (if requested)
         if (not model.label=="SeparateClassifiers") and model.optim_type=="adam_reset":
@@ -395,7 +395,7 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
         # Run the callbacks after finishing each context
         for context_cb in context_cbs:
             if context_cb is not None:
-                context_cb(model, iters, context=context)
+                context_cb(model, iters, context=context, classes=define_classes_inclded_each_context(kwargs['structure'], context-1))
 
         # REPLAY: update source for replay
         if context<len(train_datasets) and hasattr(model, 'replay_mode'):

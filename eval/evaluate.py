@@ -53,32 +53,23 @@ def calc_metrics(cm):
 
     return per_class_performance, average_performance, brief_cm
 
-# def log_results(confusion_matrix, cm):
-#     print("\n\n"+"#"*60+"\nConfusion Matrix: \n"+"#"*60)
-#     tbl = PrettyTable()
-#     tbl.field_names = [''] + [f"Predicted {i}" for i in range(NUM_CLASSES)]
-#     for i in range(NUM_CLASSES):
-#         tbl.add_row([f"Labeled {i}"] + [int(confusion_matrix[i][j]) for j in range(NUM_CLASSES)])
-#     print(tbl)
-#     print("\n\n"+"#"*60+"\nCONTEXT RESULTS: \n"+"#"*60)
-#     print('\naverage accuracy over all {} contexts: {:.4f}'.format(args.contexts, average_accs))
-#     print("\nPer class perfomance:")
-#     tbl = PrettyTable()
-#     tbl.field_names = [''] + list(range(0, NUM_CLASSES))
-#     for metric in per_class_performance.keys():
-#         tbl.add_row([metric] + [round(per_class_performance[metric][i], 4) for i in range(NUM_CLASSES)])
-#     print(tbl)
-#     print("\nBrief Confusion Matrix (Binary): ")
-#     tbl = PrettyTable()
-#     tbl.field_names = ['', 'Predicted Malicious', 'Predicted Benign']
-#     for key in brief_cm:
-#         tbl.add_row([key, *brief_cm[key].values()])
-#     print(tbl)
-#     print("\nAverage perfomance:")
-#     tbl = PrettyTable()
-#     tbl.field_names = average_performance.keys()
-#     tbl.add_row([round(average_performance[metric], 4) for metric in tbl.field_names])
-#     print(tbl)
+def log_context_results(confusion_matrix, average_performance, per_class_performance, classes=None):
+    tbl = PrettyTable()
+    tbl.field_names = [''] + [f"Predicted {i}" for i in classes]
+    for i in range(len(confusion_matrix)):
+        tbl.add_row([f"Labeled {classes[i]}"] + [int(confusion_matrix[i][j]) for j in range(len(confusion_matrix))])
+    print(tbl)
+    print("\nPer class perfomance:")
+    tbl = PrettyTable()
+    tbl.field_names = [''] + classes
+    for metric in per_class_performance.keys():
+        tbl.add_row([metric] + [round(per_class_performance[metric][i], 4) for i in range(len(classes))])
+    print(tbl)
+    print("\nAverage perfomance:")
+    tbl = PrettyTable()
+    tbl.field_names = average_performance.keys()
+    tbl.add_row([round(average_performance[metric], 4) for metric in tbl.field_names])
+    print(tbl)
 
 def test_acc(model, dataset, batch_size=128, test_size=1024, verbose=True, context_id=None, allowed_classes=None,
              no_context_mask=False, cm=None, **kwargs):
@@ -135,7 +126,7 @@ def test_acc(model, dataset, batch_size=128, test_size=1024, verbose=True, conte
         y = y-label_correction
         if cm is not None:
             # confusion matrix with rows as real labels and columns as predictions
-            cm += confusion_matrix(y, predicted, labels=range(NUM_CLASSES))
+            cm += confusion_matrix(y, predicted, labels=kwargs["active_classes"])
             # cm = confusion_matrix(y, predicted, labels=range(NUM_CLASSES))
         total_correct += (predicted == y).sum().item()
         total_tested += len(x)

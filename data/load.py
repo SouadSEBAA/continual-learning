@@ -219,7 +219,10 @@ def define_classes_inclded_each_context(structure, i):
 
     # add one class per context
     if structure == 2:
-        included_classes = [j for j in range(i+1)]
+        a = 4
+        included_classes = [c for c in range(a)]
+        if i >= a:
+            included_classes += [j for j in range(a,min(i+1,NUM_CLASSES))]
 
     # add classes incrementally in a random manner
     if structure == 3:
@@ -230,16 +233,16 @@ def define_classes_inclded_each_context(structure, i):
         elif i == 2:
             included_classes = [0]
         elif i == 3:
-            included_classes = [0,2,3,8]
+            included_classes = [0,2,3]
         elif i == 4:
             included_classes = [0,1,2,3,4]
         elif i == 5:
-            included_classes = [0,3,5,8]
+            included_classes = [0,3,5]
         elif i == 6:
             included_classes = [0,2,6]
         elif i == 7:
             included_classes = [0,2,3,7,8]
         elif i == 8:
-            included_classes = [0,5,6,7,8]
+            included_classes = [0,5,6,8]
 
     return included_classes
