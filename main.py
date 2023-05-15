@@ -470,7 +470,7 @@ def run(args, verbose=False):
                 # range(NUM_CLASSES)
             ) if (args.scenario=="task" and not checkattr(args, 'singlehead')) else None,
             cm=confusion_matrix,
-            # active_classes=range(NUM_CLASSES)
+            active_classes=range(NUM_CLASSES)
         )
         if verbose:
             print(" - Context {}: {:.4f}".format(i + 1, context_acc))

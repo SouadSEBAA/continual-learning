@@ -59,17 +59,18 @@ def log_context_results(confusion_matrix, average_performance, per_class_perform
     for i in range(len(confusion_matrix)):
         tbl.add_row([f"Labeled {classes[i]}"] + [int(confusion_matrix[i][j]) for j in range(len(confusion_matrix))])
     print(tbl)
-    print("\nPer class perfomance:")
+    print("Per class perfomance:")
     tbl = PrettyTable()
     tbl.field_names = [''] + classes
     for metric in per_class_performance.keys():
         tbl.add_row([metric] + [round(per_class_performance[metric][i], 4) for i in range(len(classes))])
     print(tbl)
-    print("\nAverage perfomance:")
+    print("Average perfomance:")
     tbl = PrettyTable()
     tbl.field_names = average_performance.keys()
     tbl.add_row([round(average_performance[metric], 4) for metric in tbl.field_names])
     print(tbl)
+    print('\n')
 
 def test_acc(model, dataset, batch_size=128, test_size=1024, verbose=True, context_id=None, allowed_classes=None,
              no_context_mask=False, cm=None, **kwargs):
