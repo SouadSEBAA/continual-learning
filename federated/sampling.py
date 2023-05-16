@@ -3,12 +3,11 @@ from data.manipulate import SubDataset
 
 # Intended for 5GNIDD datasets only
 # subdatasets -> dataset divided into contexts
-def sample_iid(subdatasets: list[SubDataset], num_clients: int):
-    def _sample_iid_subdataset(dataset: SubDataset, num_clients: int):
+def sample_iid(subdatasets: list[SubDataset], num_clients: int, **kwargs):
+    def _sample_iid_subdataset(dataset: SubDataset):
         """
         Sample I.I.D. client data from dataset
         :param dataset:
-        :param num_clients:
         :return: dict of sample indexes
         """
 
@@ -27,18 +26,17 @@ def sample_iid(subdatasets: list[SubDataset], num_clients: int):
                 idxs.difference_update(subset)
         return dict_clients
 
-    all_dict_clients = [ _sample_iid_subdataset(subdataset, num_clients) for subdataset in subdatasets ]
+    all_dict_clients = [ _sample_iid_subdataset(subdataset) for subdataset in subdatasets ]
     global_dict_clients = { i: [ dc[i] for dc in all_dict_clients ] for i in range(num_clients) }
     return global_dict_clients
 
 # Intended for 5GNIDD datasets only
 # subdatasets -> dataset divided into contexts
-def sample_noniid(subdatasets: list[SubDataset], num_clients: int, num_shards: int):
-    def _sample_noniid_subdataset(dataset: SubDataset, num_clients: int):
+def sample_noniid(subdatasets: list[SubDataset], num_clients: int, num_shards: int, **kwargs):
+    def _sample_noniid_subdataset(dataset: SubDataset):
         """
         Sample non-I.I.D. client data from dataset
         :param dataset:
-        :param num_clients:
         :return: dict of sample indexes
         """
         num_samples = len(dataset) // num_shards
@@ -62,6 +60,6 @@ def sample_noniid(subdatasets: list[SubDataset], num_clients: int, num_shards: i
                     (dict_clients[i], idxs[rand*num_samples:(rand+1)*num_samples]), axis=0)
         return dict_clients
 
-    all_dict_clients = [ _sample_noniid_subdataset(subdataset, num_clients) for subdataset in subdatasets ]
+    all_dict_clients = [ _sample_noniid_subdataset(subdataset) for subdataset in subdatasets ]
     global_dict_clients = { i: [ dc[i] for dc in all_dict_clients ] for i in range(num_clients) }
     return global_dict_clients

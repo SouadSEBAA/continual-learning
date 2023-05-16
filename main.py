@@ -405,10 +405,10 @@ def run(args, verbose=False):
     # Is federated learning used?
     if args.fl:
         # Get sample function
-        if args.fl_iid:
-            sample_fn = sample_iid
-        elif args.fl_non_iid:
+        if args.fl_non_iid:
             sample_fn = sample_noniid
+        elif args.fl_iid:
+            sample_fn = sample_iid
         else:
             raise ValueError("No sampling method selected")
 
@@ -450,6 +450,7 @@ def run(args, verbose=False):
                 train_datasets,
                 local_train_fn=train_fn,
                 sample_fn=sample_fn,
+                num_shards=args.fl_num_shards,
                 global_iters=args.fl_global_iters,
                 local_iters=args.iters,
                 frac=args.fl_frac,
