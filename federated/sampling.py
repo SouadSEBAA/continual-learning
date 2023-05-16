@@ -42,8 +42,9 @@ def sample_noniid(subdatasets: list[SubDataset], num_clients: int, num_shards: i
         num_samples = len(dataset) // num_shards
         idx_shard = [ i for i in range(num_shards) ]
         dict_clients = {i: np.array([]) for i in range(num_clients)}
-        idxs = np.arange(len(dataset))
-        labels = dataset.train_labels
+        length = num_shards * num_samples
+        idxs = np.arange(length)
+        labels = dataset.train_labels[:length]
 
         # sort labels
         idxs_labels = np.vstack((idxs, labels))
