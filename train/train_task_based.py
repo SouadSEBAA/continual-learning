@@ -44,6 +44,10 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
     per_context = (model.scenario=="task" or (model.scenario=="class" and model.neg_samples=="current"))
     per_context_singlehead = per_context and (model.scenario=="task" and model.singlehead)
 
+    # put here results of contexts in this format
+    # [ (per class perform, average perform), (per class perform, average perform), (per class perform, average perform), ... ]
+    cxts_results = []
+
     # Loop over all contexts.
     for context, train_dataset in enumerate(train_datasets, 1):
 
@@ -395,7 +399,8 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
         # Run the callbacks after finishing each context
         for context_cb in context_cbs:
             if context_cb is not None:
-                context_cb(model, iters, context=context, classes=define_classes_inclded_each_context(kwargs['structure'], context-1))
+                res = context_cb(model, iters, context=context, classes=define_classes_inclded_each_context(kwargs['structure'], context-1))
+                cxts_results.append(res)
 
         # REPLAY: update source for replay
         if context<len(train_datasets) and hasattr(model, 'replay_mode'):
@@ -426,6 +431,12 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
                             lambda y, x=model.classes_per_context: y % x
                         )
                         previous_datasets = [MemorySetDataset(model.memory_sets, target_transform=target_transform)]
+    
+    # Average all contexts results 
+    per_class_avg,  = {}
+    for res in cxts_results:
+
+
 
 #------------------------------------------------------------------------------------------------------------#
 

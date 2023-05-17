@@ -82,6 +82,8 @@ def _eval_after_each_context_cb(test_datasets, verbose=True, S='mean'):
         per_class, avg, brief_cm = evaluate.calc_metrics(confusion_matrix)
         if verbose:
             evaluate.log_context_results(confusion_matrix, avg, per_class, classes=classes)
+        
+        return per_class, avg
 
     ## Return the callback-function (except if visdom is not selected!)
     return eval_cb
