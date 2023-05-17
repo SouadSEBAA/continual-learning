@@ -190,7 +190,7 @@ def get_context_set(name, scenario, contexts, data_dir="./datasets", only_config
 
             included_classes = define_classes_inclded_each_context(structure, i)
 
-            print(f'\n\ncontext {i+1}: ')
+            print(f'context {i+1}: ')
 
             trainset = get_dataset(data_type, dir=data_dir, verbose=False, none=True)
             trainset.data = x_train
@@ -219,22 +219,47 @@ def define_classes_inclded_each_context(structure, i):
 
     # add one class per context
     if structure == 2:
+       # if i == 0:
+       #     included_classes = [0, 2, 8]
+       # elif i == 1:
+       #     included_classes = [0,2,8]
+       # elif i == 2:
+       #     included_classes = [0,2,8]
+       # elif i == 3:
+       #     included_classes = [0,1,2,8]
+       # elif i == 4:
+       #     included_classes = [0,1,2,3,8]
+       # elif i == 5:
+       #     included_classes = [0,1,2,3,4,8]
+       # elif i == 6:
+       #     included_classes = [0,1,2,3,4,5,8]
+       # elif i == 7:
+       #     included_classes = [0,1,2,3,4,5,6,8]
+       # elif i == 8:
+       #     included_classes = [0,1,2,3,4,5,6,7,8]
+       # elif i == 9:
+       #     included_classes = [0,1,2,3,4,5,6,7,8]
+       # elif i == 10:
+       #     included_classes = [0,1,2,3,4,5,6,7,8]
+       # elif i == 11:
+       #     included_classes = [0,1,2,3,4,5,6,7,8]
+
         if i == 0:
-            included_classes = [0, 1, 2, 3,5]
+            included_classes = [0,1,2]
         elif i == 1:
-            included_classes = [0,1,2,3,4,5,6]
+            included_classes = [0,1,2,3]
         elif i == 2:
-            included_classes = [0,1,2,3,4,5,6]
+            included_classes = [0,1,2,3]
         elif i == 3:
-            included_classes = [0,1,2,3,4,5,6,7]
+            included_classes = [0,1,2,3,4]
         elif i == 4:
-            included_classes = [0,1,2,3,4,5,6,7]
+            included_classes = [0,1,2,3,4,5]
         elif i == 5:
-            included_classes = [0,1,2,3,4,5,6,7,8]
+            included_classes = [0,1,2,3,4,5,6]
         elif i == 6:
-            included_classes = [0,1,2,3,4,5,6,7,8]
+            included_classes = [0,1,2,3,4,5,6]
         elif i == 7:
-            included_classes = [0,1,2,3,4,5,6,7,8]
+            included_classes = [0,1,2,3,4,5,6,7]
         elif i == 8:
             included_classes = [0,1,2,3,4,5,6,7,8]
         elif i == 9:
@@ -243,7 +268,6 @@ def define_classes_inclded_each_context(structure, i):
             included_classes = [0,1,2,3,4,5,6,7,8]
         elif i == 11:
             included_classes = [0,1,2,3,4,5,6,7,8]
-
     # add classes incrementally in a random manner
     if structure == 3:
         if i == 0:
