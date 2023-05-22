@@ -8,6 +8,8 @@ import copy
 from utils import get_data_loader,checkattr
 from data.manipulate import SubDataset, MemorySetDataset
 from models.cl.continual_learner import ContinualLearner
+from data.available import NUM_CLASSES
+from prettytable import PrettyTable
 
 
 def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
@@ -46,7 +48,10 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
 
     # put here results of contexts in this format
     # [ (per class perform, average perform), (per class perform, average perform), (per class perform, average perform), ... ]
-    cxts_results = []
+    cxts_results = {
+        'recall_per_class': {i:0 for i in range(NUM_CLASSES)},
+        'avg_performance': {}
+    }
 
     # Loop over all contexts.
     for context, train_dataset in enumerate(train_datasets, 1):
@@ -399,8 +404,7 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
         # Run the callbacks after finishing each context
         for context_cb in context_cbs:
             if context_cb is not None:
-                res = context_cb(model, iters, context=context, classes=define_classes_inclded_each_context(kwargs['structure'], context-1))
-                cxts_results.append(res)
+                context_cb(model, iters, context=context, classes=define_classes_inclded_each_context(kwargs['structure'], context-1), res=cxts_results)
 
         # REPLAY: update source for replay
         if context<len(train_datasets) and hasattr(model, 'replay_mode'):
@@ -433,9 +437,44 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
                         previous_datasets = [MemorySetDataset(model.memory_sets, target_transform=target_transform)]
     
     # Average all contexts results 
-    per_class_avg,  = {}
-    for res in cxts_results:
+    classes_count = {i:0 for i in range(NUM_CLASSES)}
+    for i in range(len(train_datasets)):
+        for c in range(NUM_CLASSES):
+            classes_count[c] += 1 if c in define_classes_inclded_each_context(2, i) else 0
 
+    for c in cxts_results["recall_per_class"]:
+        cxts_results["recall_per_class"][c] = cxts_results["recall_per_class"][c] / classes_count[c]
+
+    for k in cxts_results["avg_performance"]:
+        cxts_results["avg_performance"][k] = cxts_results["avg_performance"][k] / len(train_datasets)
+
+    print('\n\n' + ' SUMMARY OF EVALATION OVER CONTEXTS'.center(70, '*'))
+    print("Per class perfomance:")
+    tbl = PrettyTable()
+    tbl.field_names = [''] + list(classes_count.keys())
+    tbl.add_row(['recall'] + [round(cxts_results["recall_per_class"][i], 4) for i in range(NUM_CLASSES)])
+    print(tbl)
+    print("Average perfomance:")
+    tbl = PrettyTable()
+    tbl.field_names = cxts_results["avg_performance"].keys()
+    tbl.add_row([round(cxts_results["avg_performance"][metric], 4) for metric in tbl.field_names])
+    print(tbl)
+
+    # per_class_avg, perf_avg = {}, {}
+    # for res in cxts_results:
+    #     for key in res[0]:
+    #         try:
+    #             v = res[0][key]
+    #             print(v, per_class_avg[key])
+    #             per_class_avg[key] += v if str(v) != 'nan' else 0
+    #         except KeyError:
+    #             per_class_avg.setdefault(key, res[0][key])
+    #     for key in res[1]:
+    #         try:
+    #             v = res[0][key]
+    #             perf_avg[key] += v if str(v) != 'nan' else 0
+    #         except KeyError:
+    #             perf_avg.setdefault(key, res[1][key])
 
 
 #------------------------------------------------------------------------------------------------------------#

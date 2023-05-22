@@ -66,7 +66,7 @@ def _eval_after_each_context_cb(test_datasets, verbose=True, S='mean'):
     [test_datasets]       <list> of <Datasets>; also if only 1 context, it should be presented as a list!
     '''
 
-    def eval_cb(classifier, batch, context=1, classes=[]):
+    def eval_cb(classifier, batch, context=1, classes=[], res={}):
         '''Callback-function, to evaluate performance of classifier.'''
 
         # If needed, set the requested way of doing inference as attributes of the classifier
@@ -83,7 +83,18 @@ def _eval_after_each_context_cb(test_datasets, verbose=True, S='mean'):
         if verbose:
             evaluate.log_context_results(confusion_matrix, avg, per_class, classes=classes)
         
-        return per_class, avg
+        for i,c in enumerate(classes):
+            v = per_class['recall'][i]
+            res['recall_per_class'][c] += v if str(v) != 'nan' else 0
+        
+        for k in avg:
+            v = avg[k]
+            try:
+                res['avg_performance'][k] += v if str(v) != 'nan' else 0
+            except KeyError:
+                res['avg_performance'].setdefault(k, v)
+
+        # return per_class, avg
 
     ## Return the callback-function (except if visdom is not selected!)
     return eval_cb

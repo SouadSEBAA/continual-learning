@@ -11,21 +11,11 @@ import math
 LABEL_COLUMN = 'Attack Type'
 NUM_COLUMNS = 81
 IMAGE_EDGE_SIZE = int(math.sqrt(NUM_COLUMNS))
-NUM_CLASSES = 9
+NUM_CLASSES = 8
 
 def clean_dataset(df: pd.DataFrame, verbose=True):
-    # drop uneeded columns
-    to_drop = []
-    #columns_to_keep = [LABEL_COLUMN, "tcp", "AckDat", "sHops", "Seq", "RST", "TcpRtt", "REQ", "dMeanPktSz", "Offset", "CON", "FIN", "sTtl", "e", "INT", "Mean", "Status", "icmp", "SrcTCPBase", "e d", "sMeanPktSz", "DstLoss", "Loss", "dTtl", "SrcBytes", "TotBytes"]
-    #print('number of distinct value in class column before cleaning', len(df[LABEL_COLUMN].unique()))
-    i = 0
-    # for col in df.columns:
-    #     if col.strip() not in columns_to_keep or col == ' e        ':
-    #         #print('dropping', i, col)
-    #         to_drop.append(col) 
-    #         i += 1
-    # df.drop(columns=to_drop, inplace=True)
     df.drop(columns=['Unnamed: 0', 'Attack Tool', 'Label' if not LABEL_COLUMN == 'Label' else 'Attack Type'], inplace=True) # Seq
+    # df.drop(columns=['Label' if not LABEL_COLUMN == 'Label' else 'Attack Type'], inplace=True) # Seq
     # drop columns that contain a lot of null values
     for col in df.columns:
         if df[col].isnull().sum() > (len(df) * 0.7):
@@ -38,14 +28,11 @@ def clean_dataset(df: pd.DataFrame, verbose=True):
     #print('number of distinct value in class column after deleting rows with na values', len(df[LABEL_COLUMN].unique()))
 
     # reduce the classes percentage
-    reduce_class(df, LABEL_COLUMN, 'Benign', 0.5)
-    reduce_class(df, LABEL_COLUMN, 'UDPFlood', 0.6)
-    reduce_class(df, LABEL_COLUMN, 'HTTPFlood', 0.43) #0.33)
-    reduce_class(df, LABEL_COLUMN, 'SlowrateDoS', 0.35) #0.15)
-    if NUM_CLASSES == 8: reduce_class(df, LABEL_COLUMN, 'UDPScan', 1)
-
-    # resample negligeable classes
-    #df = resample_class(df, 'ICMPFlood', 0.5)
+    reduce_class(df, LABEL_COLUMN, 'Benign', 0.4)
+    reduce_class(df, LABEL_COLUMN, 'UDPFlood', 0.75)
+    reduce_class(df, LABEL_COLUMN, 'HTTPFlood', 0.33) #0.33)
+    # reduce_class(df, LABEL_COLUMN, 'SlowrateDoS', 0.35) #0.15)
+    # if NUM_CLASSES == 8: reduce_class(df, LABEL_COLUMN, 'UDPScan', 1)
 
     verbose and print('\nClasses percentage after reducing and oversampling dataset:', df[LABEL_COLUMN].value_counts(normalize=False))
 
@@ -75,9 +62,10 @@ def clean_dataset(df: pd.DataFrame, verbose=True):
             d[col] = int
     df = df.astype(d)
     #print('number of distinct value in class column after cleaning', len(df[LABEL_COLUMN].unique()))
-    # for i in range(36 - 33):
-    #     df[f'nan{i}'] = 3
-    # print(f'number of columns {len(df.columns)}')
+    for i in range(NUM_COLUMNS - len(df.columns) + 1):
+        df[f'nan{i}'] = 0
+    print(f'number of columns {len(df.columns)}')
+    print(f'number of rows {len(df)}')
 
 def resample_class(df, class_val, p):
     minority_class = df[df[LABEL_COLUMN] == class_val].copy()
