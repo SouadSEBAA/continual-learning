@@ -387,13 +387,14 @@ def run(args, verbose=False):
     # -after each [acc_log], for visdom
     eval_cbs = [
         cb._eval_cb(log=args.acc_log, test_datasets=test_datasets, visdom=visdom, iters_per_context=args.iters,
-                    test_size=args.acc_n)
+                    test_size=args.acc_n),
     ] if (not checkattr(args, 'prototypes')) and (not checkattr(args, 'gen_classifier')) else [None]
     # -after each context, for plotting in pdf (when using prototypes / generative classifier, this is also for visdom)
     context_cbs = [
         cb._eval_cb(log=args.iters, test_datasets=test_datasets, plotting_dict=plotting_dict,
                     visdom=visdom if checkattr(args, 'prototypes') or checkattr(args, 'gen_classifier') else None,
-                    iters_per_context=args.iters, test_size=args.acc_n, S=args.eval_s if hasattr(args, 'eval_s') else 1)
+                    iters_per_context=args.iters, test_size=args.acc_n, S=args.eval_s if hasattr(args, 'eval_s') else 1),
+        cb._eval_after_each_context_cb(test_datasets=test_datasets, verbose=verbose),
     ]
 
     #-------------------------------------------------------------------------------------------------#
@@ -464,6 +465,7 @@ def run(args, verbose=False):
                 generator=generator,
                 gen_iters=g_iters,
                 gen_loss_cbs=generator_loss_cbs,
+                structure=args.structure,
             )
         else:
             train_fn(
@@ -472,6 +474,7 @@ def run(args, verbose=False):
                 # -if using generative replay with a separate generative model:
                 generator=generator, gen_iters=g_iters,
                 gen_loss_cbs=generator_loss_cbs,
+                structure=args.structure,
             )
         # -get total training-time in seconds, write to file and print to screen
         if args.time:
@@ -518,8 +521,10 @@ def run(args, verbose=False):
         context_acc, confusion_matrix = evaluate.test_acc(
             model, test_datasets[i], verbose=False, test_size=None, context_id=i, allowed_classes=list(
                 range(config['classes_per_context']*i, config['classes_per_context']*(i+1))
+                # range(NUM_CLASSES)
             ) if (args.scenario=="task" and not checkattr(args, 'singlehead')) else None,
             cm=confusion_matrix,
+            active_classes=range(NUM_CLASSES)
         )
         if verbose:
             print(" - Context {}: {:.4f}".format(i + 1, context_acc))
@@ -528,30 +533,7 @@ def run(args, verbose=False):
     # average accuracy among contexts
     average_accs = sum(accs_per_context) / args.contexts
 
-    # per class performance
-    per_class_performance = {
-        # 'precision': confusion_matrix.diagonal()/confusion_matrix.sum(axis=0),
-        'recall': confusion_matrix.diagonal()/confusion_matrix.sum(axis=1),
-    }
-    # if True and verbose:
-        # print(f'confusion_matrix.rows.sum = {confusion_matrix.sum(axis=1)}')
-        # print(f'confusion_matrix.cols.sum = {confusion_matrix.sum(axis=0)}')
-        # print(f'tp = {tp}')
-        # print(f'recall = {recall}, precision = {precision}')
-        # print(f'=> class {i}: \n\tprecision: {precision:.3f} \n\trecall: {recall:.3f} \n\tacc: {acc:.3f} \n\tf1-score: {f1:3f}' )
-
-    # average performance
-    average_performance = {
-        'precision': {},
-        'recall': {},
-    }
-    tp_attacks = confusion_matrix[1:, 1:].sum()
-    fp_attacks = confusion_matrix[0, 1:].sum()
-    fn_attacks = confusion_matrix[1:, 0].sum()
-    average_performance['accuracy'] = confusion_matrix.diagonal().sum()/confusion_matrix.sum()
-    prec = average_performance['precision'] = tp_attacks / (tp_attacks + fp_attacks) 
-    rec = average_performance['recall'] = tp_attacks / (tp_attacks + fn_attacks)
-    average_performance['f1-score'] = 2*prec*rec / (prec + rec)
+    per_class_performance, average_performance, brief_cm = evaluate.calc_metrics(confusion_matrix)
 
     # print results to screen
     if verbose:
@@ -565,15 +547,15 @@ def run(args, verbose=False):
         print('\naverage accuracy over all {} contexts: {:.4f}'.format(args.contexts, average_accs))
         print("\nPer class perfomance:")
         tbl = PrettyTable()
-        tbl.field_names = range(-1, NUM_CLASSES)
+        tbl.field_names = [''] + list(range(0, NUM_CLASSES))
         for metric in per_class_performance.keys():
             tbl.add_row([metric] + [round(per_class_performance[metric][i], 4) for i in range(NUM_CLASSES)])
         print(tbl)
         print("\nBrief Confusion Matrix (Binary): ")
         tbl = PrettyTable()
-        tbl.field_names = ['', 'Predcited Benign', 'Predicted Malicious']
-        tbl.add_row(['Labeled Benign'] + [confusion_matrix[0,0].sum(), fp_attacks])
-        tbl.add_row(['Labeled Malicious'] + [fn_attacks, tp_attacks])
+        tbl.field_names = ['', 'Predicted Malicious', 'Predicted Benign']
+        for key in brief_cm:
+            tbl.add_row([key, *brief_cm[key].values()])
         print(tbl)
         print("\nAverage perfomance:")
         tbl = PrettyTable()
