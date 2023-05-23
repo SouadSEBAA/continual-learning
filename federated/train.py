@@ -35,7 +35,7 @@ def train_fl(
     **kwargs,
 ):
     # Dictionary that contains a list of dataset indexes for each context
-    user_groups = sample_fn(train_datasets, num_clients, num_shards)
+    user_groups = sample_fn(train_datasets, num_clients, num_shards=num_shards)
 
     # Set the model to train
     global_model.train()
