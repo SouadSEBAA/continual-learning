@@ -37,7 +37,8 @@ def clean_dataset(df: pd.DataFrame, verbose=True):
     # reduce_class(df, LABEL_COLUMN, 'SlowrateDoS', 0.35) #0.15)
     # if NUM_CLASSES == 8: reduce_class(df, LABEL_COLUMN, 'UDPScan', 1)
 
-    verbose and print('\nClasses percentage after reducing and oversampling dataset:', df[LABEL_COLUMN].value_counts(normalize=False))
+    verbose and print('\nClasses percentage after balancing some classes:', df[LABEL_COLUMN].value_counts(normalize=True))
+    verbose and print('Classes samples count:', df[LABEL_COLUMN].value_counts(normalize=False))
 
     #  standard normalization
 
