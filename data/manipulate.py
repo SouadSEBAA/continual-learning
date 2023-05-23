@@ -66,6 +66,9 @@ class SubDataset(Dataset):
             target = self.target_transform(sample[1])
             sample = (sample[0], target)
         return sample
+    
+    def get_unique_targets(self):
+        return list(set(self.dataset.targets[self.sub_indeces]))
 
 
 class MemorySetDataset(Dataset):

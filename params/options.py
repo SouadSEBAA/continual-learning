@@ -82,7 +82,7 @@ def add_problem_options(parser, pretrain=False, no_boundaries=False, **kwargs):
     if not pretrain:
         problem_params.add_argument('--scenario', type=str, default='class', choices=['task', 'domain', 'class'])
         # add structures
-        problem_params.add_argument('--structure', type=int, default=3, choices=[1,2,3])
+        problem_params.add_argument('--structure', type=int, default=3, choices=[1,2,3,4,5,6])
         problem_params.add_argument('--contexts', type=int, metavar='N', help='number of contexts')
         problem_params.add_argument('--iters', type=int, help="# iterations (mini-batches) per context")
         problem_params.add_argument('--batch', type=int, help="mini batch size (# observations per iteration)")

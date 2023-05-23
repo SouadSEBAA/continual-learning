@@ -11,7 +11,7 @@ import math
 LABEL_COLUMN = 'Attack Type'
 NUM_COLUMNS = 81
 IMAGE_EDGE_SIZE = int(math.sqrt(NUM_COLUMNS))
-NUM_CLASSES = 8
+NUM_CLASSES = 9
 
 def clean_dataset(df: pd.DataFrame, verbose=True):
     df.drop(columns=['Unnamed: 0', 'Attack Tool', 'Label' if not LABEL_COLUMN == 'Label' else 'Attack Type'], inplace=True) # Seq
@@ -29,8 +29,11 @@ def clean_dataset(df: pd.DataFrame, verbose=True):
 
     # reduce the classes percentage
     reduce_class(df, LABEL_COLUMN, 'Benign', 0.4)
-    reduce_class(df, LABEL_COLUMN, 'UDPFlood', 0.75)
-    reduce_class(df, LABEL_COLUMN, 'HTTPFlood', 0.33) #0.33)
+    # reduce_class(df, LABEL_COLUMN, 'UDPFlood', 0.7)
+    reduce_class(df, LABEL_COLUMN, 'UDPFlood', 0.9)
+    # reduce_class(df, LABEL_COLUMN, 'HTTPFlood', 0.1) #0.33)
+    reduce_class(df, LABEL_COLUMN, 'HTTPFlood', 0.6) #0.33)
+    reduce_class(df, LABEL_COLUMN, 'SYNScan', 0.3) #0.33)
     # reduce_class(df, LABEL_COLUMN, 'SlowrateDoS', 0.35) #0.15)
     # if NUM_CLASSES == 8: reduce_class(df, LABEL_COLUMN, 'UDPScan', 1)
 

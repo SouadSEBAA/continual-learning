@@ -45,12 +45,13 @@ def calc_metrics(cm):
 
     average_performance = {}
     average_performance['multiclass accuracy'] = cm.diagonal().sum() / cm.sum()
-    average_performance['multiclass recall'] = per_class_performance['recall'].sum() / len(per_class_performance['recall'])
+    average_performance['macro recall'] = per_class_performance['recall'].sum() / len(per_class_performance['recall'])
+    average_performance['weighted recall'] = sum(per_class_performance['recall'] *  cm.sum(axis=1)) / cm.sum()
     average_performance['binary accuracy'] = (tp_attacks+tn_attacks) / (tp_attacks+tn_attacks+fp_attacks+fn_attacks)
     average_performance['binary FPR'] = fp_attacks / (tn_attacks + fp_attacks)
-    prec = average_performance['bianry precision'] = tp_attacks / (tp_attacks + fp_attacks) 
-    rec = average_performance['bianry recall'] = tp_attacks / (tp_attacks + fn_attacks)
-    average_performance['bianry f1-score'] = 2*prec*rec / (prec + rec)
+    prec = average_performance['binary precision'] = tp_attacks / (tp_attacks + fp_attacks) 
+    rec = average_performance['binary recall'] = tp_attacks / (tp_attacks + fn_attacks)
+    average_performance['binary f1-score'] = 2*prec*rec / (prec + rec)
 
     return per_class_performance, average_performance, brief_cm
 
