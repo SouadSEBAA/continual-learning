@@ -262,12 +262,14 @@ def define_one_context_classes(structure, i, included_classes_so_far=[]):
             included_classes = [0,1,2,3,4]
         elif i == 4:
             included_classes = [0,1,2,3,4,5]
-        elif i == 5:
+        elif i == 9:
             included_classes = [0,1,2,3,4,5]
-        elif i == 6:
+        elif i == 5:
             included_classes = [0,1,2,3,4,5,6]
-        elif i == 7:
+        elif i == 6:
             included_classes = [0,1,2,3,4,5,6,7]
+        elif i == 7:
+            included_classes = [0,1,2,3,4,5,6,7,8]
         elif i == 8:
             included_classes = [0,1,2,3,4,5,6,7,8]
 
