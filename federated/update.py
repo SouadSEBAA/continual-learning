@@ -8,6 +8,7 @@ class DatasetSplit(Dataset):
     def __init__(self, dataset, idxs):
         self.dataset = dataset
         self.idxs = [int(i) for i in idxs]
+        self.targets = [ self.dataset.targets[idx] for idx in self.idxs ]
 
     def __len__(self):
         return len(self.idxs)
@@ -16,7 +17,7 @@ class DatasetSplit(Dataset):
         return self.dataset[self.idxs[item]]
 
     def get_unique_targets(self):
-        return list(set(self.dataset.targets[self.idxs]))
+        return list(set(self.targets))
 
 
 class LocalUpdate(object):
