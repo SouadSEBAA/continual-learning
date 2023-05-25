@@ -7,6 +7,7 @@ from data.available import AVAILABLE_DATASETS, AVAILABLE_TRANSFORMS, DATASET_CON
 
 from sklearn.model_selection import StratifiedKFold, KFold
 from sklearn.model_selection import train_test_split
+from random import choices
 
 def get_dataset(name, type='train', download=True, capacity=None, permutation=None, dir='./store/datasets',
                 verbose=False, augment=False, normalize=False, target_transform=None, all=False, none=False):
@@ -176,52 +177,56 @@ def get_context_set(name, scenario, contexts, data_dir="./datasets", only_config
                                 verbose=True, augment=augment, normalize=normalize, all=True)
         X, Y = dataset.data, dataset.targets
         subsets = []
-        class_counts = {item[0]:[item[1],0] for item in count_classes(structure, contexts).items()}
+        included_classes = define_classes_context(structure, contexts)
+        class_counts = {item[0]:[item[1],0] for item in count_classes(included_classes, contexts).items()}
+
         for i in range(contexts):
             for j in range(classes):
                 if class_counts[j][0]:
-                    idx = np.array_split(np.where(Y == j)[0], class_counts[j][0])[class_counts[j][1]]
-                    class_counts[j][1] += 1 if (class_counts[j][1] + 1) < class_counts[j][0] else 0
+                    if structure == 1: # intra class
+                        idx = np.array_split(np.where(Y == j)[0], 1)[0]
+                    else: # inter class
+                        idx = np.array_split(np.where(Y == j)[0], class_counts[j][0])[class_counts[j][1]]
+                        class_counts[j][1] += 1 if (class_counts[j][1] + 1) < class_counts[j][0] else 0
                     if j == 0:
                         subset = (X[idx], Y[idx])
                     else:
                         subset = (np.concatenate((subset[0], X[idx]), axis=0), np.concatenate((subset[1], Y[idx]), axis=0))
             subsets.append(subset)
-                
+        
         for i in range(contexts):
             x_train, x_test, y_train, y_test = train_test_split(subsets[i][0], subsets[i][1])
-
-            included_classes = define_classes_inclded_each_context(structure, i)
+            # included_classes = define_classes_inclded_each_context(structure, i, included_classes_so_far=included_classes)
 
             print(f'context {i+1}: ')
 
             trainset = get_dataset(data_type, dir=data_dir, verbose=False, none=True)
             trainset.data = x_train
             trainset.targets = y_train
-            train_datasets.append(SubDataset(trainset, included_classes, verbose=verbose))
+            train_datasets.append(SubDataset(trainset, included_classes[i], verbose=verbose))
 
             testset = get_dataset(data_type, dir=data_dir, verbose=False, none=True)
             testset.data = x_test
             testset.targets = y_test
-            test_datasets.append(SubDataset(testset, included_classes))
+            test_datasets.append(SubDataset(testset, included_classes[i]))
             
-            #uniques, counts = np.unique(y_train, return_counts=True)
-            #percentages = dict(zip(uniques, counts * 100 / len(y_train)))
-            #print(f'context {i}: len(train) = {len(x_train)}, len(test) = {len(x_test)}')
-            #print(percentages)
-
     # Return tuple of train- and test-dataset, config-dictionary and number of classes per context
     return ((train_datasets, test_datasets), config)
 
-def define_classes_inclded_each_context(structure, i):
+def define_classes_context(struct, Ncontexts):
+    all_contexts = []
     included_classes = []
+    for i in range(Ncontexts):
+        all_contexts += [ define_one_context_classes(struct, i, included_classes_so_far=included_classes) ]
+        included_classes += all_contexts[-1]
+    
+    return all_contexts
 
-    # same distributions among contxts
-    if structure == 1:
-        included_classes = range(NUM_CLASSES)
 
+def define_one_context_classes(structure, i, included_classes_so_far=[]):
+    included_classes = list(set(included_classes_so_far))
     # add one class per context
-    if structure == 2:
+    if structure == 1 or structure == 2:
        # if i == 0:
        #     included_classes = [0, 2, 8]
        # elif i == 1:
@@ -248,7 +253,7 @@ def define_classes_inclded_each_context(structure, i):
        #     included_classes = [0,1,2,3,4,5,6,7,8]
 
         if i == 0:
-            included_classes = [0,1,2]
+            included_classes = [0,1]
         elif i == 1:
             included_classes = [0,1,2]
         elif i == 2:
@@ -257,20 +262,16 @@ def define_classes_inclded_each_context(structure, i):
             included_classes = [0,1,2,3,4]
         elif i == 4:
             included_classes = [0,1,2,3,4,5]
-        elif i == 5:
-            included_classes = [0,1,2,3,4,5]
-        elif i == 6:
-            included_classes = [0,1,2,3,4,5,6]
-        elif i == 7:
-            included_classes = [0,1,2,3,4,5,6,7]
-        elif i == 8:
-            included_classes = [0,1,2,3,4,5,6,2,8]
         elif i == 9:
-            included_classes = [0,1,2,3,4,5,6,2,8]
-        elif i == 10:
-            included_classes = [0,1,2,3,4,5,6,2,8]
-        elif i == 11:
-            included_classes = [0,1,2,7,3,4,5,6,2,8]
+            included_classes = [0,1,2,3,4,5]
+        elif i == 5:
+            included_classes = [0,1,2,3,4,5,6]
+        elif i == 6:
+            included_classes = [0,1,2,3,4,5,6,7]
+        elif i == 7:
+            included_classes = [0,1,2,3,4,5,6,7,8]
+        elif i == 8:
+            included_classes = [0,1,2,3,4,5,6,7,8]
 
         # if i == 0:
         #     included_classes = [8,0]
@@ -292,31 +293,19 @@ def define_classes_inclded_each_context(structure, i):
         #     included_classes = [8,1,0,2,3,4,5,6,7]
 
     # add classes incrementally in a random manner
-    if structure == 3:
+    else:
         if i == 0:
-            included_classes = [0, 1, 2, 3]
-        elif i == 1:
-            included_classes = [0,1]
-        elif i == 2:
-            included_classes = [0]
-        elif i == 3:
-            included_classes = [0,2,3]
-        elif i == 4:
-            included_classes = [0,1,2,3,4]
-        elif i == 5:
-            included_classes = [0,3,5]
-        elif i == 6:
-            included_classes = [0,2,6]
-        elif i == 7:
-            included_classes = [0,2,3,7]
-        elif i == 8:
-            included_classes = [0,5,6,8]
+            included_classes = [0, *choices(range(1,NUM_CLASSES)) ]
+        else:
+            for _ in range(structure - 2):
+                if len(s:=set(range(NUM_CLASSES)).difference(included_classes)) != 0:
+                    included_classes += choices(list(s)) 
 
     return included_classes
 
-def count_classes(struct, Ncontexts):
+def count_classes(included_classes, Ncontexts):
     classes_count = {i:0 for i in range(NUM_CLASSES)}
     for i in range(Ncontexts):
         for c in range(NUM_CLASSES):
-            classes_count[c] += 1 if c in define_classes_inclded_each_context(struct, i) else 0
+            classes_count[c] += 1 if c in included_classes[i] else 0
     return classes_count
