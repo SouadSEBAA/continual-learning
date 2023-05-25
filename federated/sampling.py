@@ -1,5 +1,6 @@
 import numpy as np
 from data.manipulate import SubDataset
+from federated.utils import distribution
 
 # Intended for 5GNIDD datasets only
 # subdatasets -> dataset divided into contexts
@@ -41,7 +42,7 @@ def sample_noniid(subdatasets: list[SubDataset], num_clients: int, num_shards: i
         """
         num_samples = len(dataset) // num_shards
         idx_shard = [ i for i in range(num_shards) ]
-        dict_clients = {i: np.array([]) for i in range(num_clients)}
+        dict_clients = {i: np.array([], dtype=int) for i in range(num_clients)}
         length = num_shards * num_samples
         idxs = np.arange(length)
         labels = dataset.train_labels[:length]
@@ -58,9 +59,45 @@ def sample_noniid(subdatasets: list[SubDataset], num_clients: int, num_shards: i
             idx_shard = list(set(idx_shard) - rand_set)
             for rand in rand_set:
                 dict_clients[i] = np.concatenate(
-                    (dict_clients[i], idxs[rand*num_samples:(rand+1)*num_samples]), axis=0)
+                    (dict_clients[i], idxs[rand*num_samples:(rand+1)*num_samples]), axis=0, dtype=int)
         return dict_clients
 
     all_dict_clients = [ _sample_noniid_subdataset(subdataset) for subdataset in subdatasets ]
+    global_dict_clients = { i: [ dc[i] for dc in all_dict_clients ] for i in range(num_clients) }
+    return global_dict_clients
+
+# Intended for 5GNIDD datasets only
+# subdatasets -> dataset divided into contexts
+def sample_noniid2(subdatasets: list[SubDataset], num_clients: int, minval: float, maxval: float, **kwargs):
+    def _sample_noniid2_subdataset(dataset: SubDataset, context_id: int):
+        """
+        Sample non-I.I.D. (2) client data from dataset
+        :param dataset:
+        :return: dict of sample indexes
+        """
+
+        idxs_per_label = {}
+        all_idxs = [ i for i in range(len(dataset)) ]
+        labels = dataset.train_labels
+        for idx, label in zip(all_idxs, labels):
+            idxs_per_label.setdefault(label, set()).add(idx)
+
+        # dists = { label: distribution(minval, maxval, num_clients) for label in idxs_per_label.keys() }
+        percentages = {}
+
+        dict_clients = {}
+        for label, idxs in idxs_per_label.items():
+            percentages[label] = distribution(minval, maxval, num_clients)
+            for i in range(num_clients):
+                num_items = int(percentages[label][i] * len(idxs))
+                subset = set(np.random.choice(list(idxs), num_items, replace=False))
+                dict_clients.setdefault(i, set()).update(subset)
+                idxs.difference_update(subset)
+        print(f"Context '{context_id}' non-IID distribution:")
+        print(percentages)
+        print()
+        return dict_clients
+
+    all_dict_clients = [ _sample_noniid2_subdataset(subdataset, i) for i, subdataset in enumerate(subdatasets) ]
     global_dict_clients = { i: [ dc[i] for dc in all_dict_clients ] for i in range(num_clients) }
     return global_dict_clients

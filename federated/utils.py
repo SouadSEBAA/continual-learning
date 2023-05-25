@@ -1,4 +1,5 @@
 import copy
+import random
 import torch
 
 def average_weights(w):
@@ -25,3 +26,8 @@ def fl_exp_details(iid: bool, num_clients: int, frac: int, local_batch_size: int
     print(f'    Local Epochs       : {local_iters}\n')
     print(f'    Global Epochs       : {global_iters}\n')
     return
+
+
+def distribution(minval, maxval, numclients, roundnum=2):
+    l = [ round(random.uniform(minval, maxval), roundnum) for _ in range(numclients) ]
+    return [ round(x / sum(l), roundnum) for x in l ]

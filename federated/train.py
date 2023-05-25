@@ -18,6 +18,8 @@ def train_fl(
     train_datasets: list[SubDataset],
     local_train_fn=train_cl,
     sample_fn=sample_iid,
+    minval=0.05,
+    maxval=0.15,
     num_shards=20,
     global_iters=10,
     local_iters=2000,
@@ -35,7 +37,7 @@ def train_fl(
     **kwargs,
 ):
     # Dictionary that contains a list of dataset indexes for each context
-    user_groups = sample_fn(train_datasets, num_clients, num_shards=num_shards)
+    user_groups = sample_fn(train_datasets, num_clients, num_shards=num_shards, minval=minval, maxval=maxval)
 
     # Set the model to train
     global_model.train()

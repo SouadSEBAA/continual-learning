@@ -358,8 +358,11 @@ def add_fl_options(parser, **kwargs):
     fl_params.add_argument('--fl-frac', type=float, help='fraction of clients participating per round', default=1.0)
     fl_params.add_argument("--fl-iid", action="store_true", help="sample dataset in IID fashion (default)", default=True)
     fl_params.add_argument("--fl-non-iid", action="store_true", help="sample dataset in non-IID fashion", default=False)
+    fl_params.add_argument("--fl-non-iid-2", action="store_true", help="sample dataset in non-IID fashion (2)", default=False)
     fl_params.add_argument("--fl-num-shards", type=int, help="number of shards for non-IID distribution", default=20)
     fl_params.add_argument("--fl-threaded", action="store_true", help="Use multithreading", default=False)
+    fl_params.add_argument('--fl-min-val', type=float, help='minimum percentage value for non-IID distribution (2)', default=0.05)
+    fl_params.add_argument('--fl-max-val', type=float, help='maximum percentage value for non-IID distribution (2)', default=0.15)
     return parser
 
 ##-------------------------------------------------------------------------------------------------------------------##

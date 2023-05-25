@@ -4,7 +4,7 @@ import numpy as np
 import time
 import torch
 from torch import optim
-from federated.sampling import sample_iid, sample_noniid
+from federated.sampling import sample_iid, sample_noniid, sample_noniid2
 from federated.train import train_fl, train_fl_threaded
 from federated.utils import fl_exp_details
 # -custom-written libraries
@@ -406,7 +406,9 @@ def run(args, verbose=False):
     # Is federated learning used?
     if args.fl:
         # Get sample function
-        if args.fl_non_iid:
+        if args.fl_non_iid_2:
+            sample_fn = sample_noniid2
+        elif args.fl_non_iid:
             sample_fn = sample_noniid
         elif args.fl_iid:
             sample_fn = sample_iid
@@ -451,6 +453,8 @@ def run(args, verbose=False):
                 train_datasets,
                 local_train_fn=train_fn,
                 sample_fn=sample_fn,
+                minval=args.fl_min_val,
+                maxval=args.fl_max_val,
                 num_shards=args.fl_num_shards,
                 global_iters=args.fl_global_iters,
                 local_iters=args.iters,
