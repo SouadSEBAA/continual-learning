@@ -15,6 +15,9 @@ class DatasetSplit(Dataset):
     def __getitem__(self, item):
         return self.dataset[self.idxs[item]]
 
+    def get_unique_targets(self):
+        return list(set(self.dataset.targets[self.idxs]))
+
 
 class LocalUpdate(object):
     def __init__(self, train_datasets, idxs, train_fn, iters, batch_size, baseline, loss_cbs, eval_cbs, sample_cbs, context_cbs, generator, gen_iters, gen_loss_cbs, **kwargs):
