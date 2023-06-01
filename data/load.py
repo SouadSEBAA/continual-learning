@@ -8,6 +8,7 @@ from data.available import AVAILABLE_DATASETS, AVAILABLE_TRANSFORMS, DATASET_CON
 from sklearn.model_selection import StratifiedKFold, KFold
 from sklearn.model_selection import train_test_split
 from random import choices
+from functools import lru_cache
 
 def get_dataset(name, type='train', download=True, capacity=None, permutation=None, dir='./store/datasets',
                 verbose=False, augment=False, normalize=False, target_transform=None, all=False, none=False):
@@ -99,7 +100,8 @@ def get_context_set(name, scenario, contexts, data_dir="./datasets", only_config
     #classes_per_context = 2 if scenario == 'domain' else classes_per_context
     config['classes_per_context'] = classes_per_context
     config['output_units'] = classes_per_context if (scenario=='domain' or
-                                                    (scenario=="task" and singlehead)) else classes_per_context*contexts
+                                                    # (scenario=="task" and singlehead)) else classes_per_context*contexts
+                                                    (scenario=="task" and singlehead)) else config['classes']
     # -if only config-dict is needed, return it
     if only_config:
         return config
@@ -213,6 +215,7 @@ def get_context_set(name, scenario, contexts, data_dir="./datasets", only_config
     # Return tuple of train- and test-dataset, config-dictionary and number of classes per context
     return ((train_datasets, test_datasets), config)
 
+@lru_cache(maxsize=None)
 def define_classes_context(struct, Ncontexts):
     all_contexts = []
     included_classes = []
@@ -227,31 +230,6 @@ def define_one_context_classes(structure, i, included_classes_so_far=[]):
     included_classes = list(set(included_classes_so_far))
     # add one class per context
     if structure == 1 or structure == 2:
-       # if i == 0:
-       #     included_classes = [0, 2, 8]
-       # elif i == 1:
-       #     included_classes = [0,2,8]
-       # elif i == 2:
-       #     included_classes = [0,2,8]
-       # elif i == 3:
-       #     included_classes = [0,1,2,8]
-       # elif i == 4:
-       #     included_classes = [0,1,2,3,8]
-       # elif i == 5:
-       #     included_classes = [0,1,2,3,4,8]
-       # elif i == 6:
-       #     included_classes = [0,1,2,3,4,5,8]
-       # elif i == 7:
-       #     included_classes = [0,1,2,3,4,5,6,8]
-       # elif i == 8:
-       #     included_classes = [0,1,2,3,4,5,6,7,8]
-       # elif i == 9:
-       #     included_classes = [0,1,2,3,4,5,6,7,8]
-       # elif i == 10:
-       #     included_classes = [0,1,2,3,4,5,6,7,8]
-       # elif i == 11:
-       #     included_classes = [0,1,2,3,4,5,6,7,8]
-
         if i == 0:
             included_classes = [0,1]
         elif i == 1:
@@ -262,8 +240,6 @@ def define_one_context_classes(structure, i, included_classes_so_far=[]):
             included_classes = [0,1,2,3,4]
         elif i == 4:
             included_classes = [0,1,2,3,4,5]
-        elif i == 9:
-            included_classes = [0,1,2,3,4,5]
         elif i == 5:
             included_classes = [0,1,2,3,4,5,6]
         elif i == 6:
@@ -273,22 +249,42 @@ def define_one_context_classes(structure, i, included_classes_so_far=[]):
         elif i == 8:
             included_classes = [0,1,2,3,4,5,6,7,8]
 
+        # this order gave 0.28 of accuracy with lr=0.01
+        # if i == 0:
+        #     included_classes = [0,4]
+        # elif i == 1:
+        #     included_classes = [0,4,6]
+        # elif i == 2:
+        #     included_classes = [0,4,6,1]
+        # elif i == 3:
+        #     included_classes = [0,4,6,1,3]
+        # elif i == 4:
+        #     included_classes = [0,4,6,1,3,7]
+        # elif i == 5:
+        #     included_classes = [0,4,6,1,3,7,8]
+        # elif i == 6:
+        #     included_classes = [0,4,6,1,3,7,8,2]
+        # elif i == 7:
+        #     included_classes = [0,4,6,1,3,7,8,2,5]
+        # elif i == 8:
+        #     included_classes = [0,4,6,1,3,7,8,2,5]
+
         # if i == 0:
         #     included_classes = [8,0]
         # elif i == 1:
-        #     included_classes = [8,0,2]
+        #     included_classes = [8,0,1]
         # elif i == 2:
-        #     included_classes = [8,0,2]
+        #     included_classes = [8,0,1,2]
         # elif i == 3:
-        #     included_classes = [8,0,2,3]
+        #     included_classes = [8,0,1,2,3]
         # elif i == 4:
-        #     included_classes = [8,1,0,2,3]
-        # elif i == 5:
         #     included_classes = [8,1,0,2,3,4]
-        # elif i == 6:
+        # elif i == 5:
         #     included_classes = [8,1,0,2,3,4,5]
-        # elif i == 7:
+        # elif i == 6:
         #     included_classes = [8,1,0,2,3,4,5,6]
+        # elif i == 7:
+        #     included_classes = [8,1,0,2,3,4,5,6,7]
         # elif i == 8:
         #     included_classes = [8,1,0,2,3,4,5,6,7]
 
