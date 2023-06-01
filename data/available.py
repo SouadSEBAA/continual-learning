@@ -29,13 +29,9 @@ def clean_dataset(df: pd.DataFrame, verbose=True):
 
     # reduce the classes percentage
     reduce_class(df, LABEL_COLUMN, 'Benign', 0.4)
-    # reduce_class(df, LABEL_COLUMN, 'UDPFlood', 0.7)
     reduce_class(df, LABEL_COLUMN, 'UDPFlood', 0.9)
-    # reduce_class(df, LABEL_COLUMN, 'HTTPFlood', 0.1) #0.33)
     reduce_class(df, LABEL_COLUMN, 'HTTPFlood', 0.6) #0.33)
     reduce_class(df, LABEL_COLUMN, 'SYNScan', 0.3) #0.33)
-    # reduce_class(df, LABEL_COLUMN, 'SlowrateDoS', 0.35) #0.15)
-    # if NUM_CLASSES == 8: reduce_class(df, LABEL_COLUMN, 'UDPScan', 1)
 
     verbose and print('\nClasses percentage after balancing some classes:', df[LABEL_COLUMN].value_counts(normalize=True))
     verbose and print('Classes samples count:', df[LABEL_COLUMN].value_counts(normalize=False))

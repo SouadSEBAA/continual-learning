@@ -93,6 +93,9 @@ def _eval_after_each_context_cb(test_datasets, verbose=True, S='mean'):
                 res['avg_performance'][k] += v if str(v) != 'nan' else 0
             except KeyError:
                 res['avg_performance'].setdefault(k, v)
+        
+        res['contexts_acc'][context] = context_acc
+        res['contexts_rec'][context] = avg['macro recall']
 
         # return per_class, avg
 

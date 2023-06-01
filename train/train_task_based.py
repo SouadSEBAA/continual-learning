@@ -8,8 +8,10 @@ import copy
 from utils import get_data_loader,checkattr
 from data.manipulate import SubDataset, MemorySetDataset
 from models.cl.continual_learner import ContinualLearner
+
 from data.available import NUM_CLASSES
 from prettytable import PrettyTable
+from utils import plot_contexts_infos
 
 
 def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
@@ -50,7 +52,9 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
     # [ (per class perform, average perform), (per class perform, average perform), (per class perform, average perform), ... ]
     cxts_results = {
         'recall_per_class': {i:0 for i in range(NUM_CLASSES)},
-        'avg_performance': {}
+        'avg_performance': {},
+        'contexts_acc': {},
+        'contexts_rec': {},
     }
 
     # Loop over all contexts.
@@ -106,10 +110,11 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
             if model.neg_samples=="all-so-far":
                 # --> one <list> with active classes of all contexts so far
                 # active_classes = list(range(model.classes_per_context * context))
-                # active_classes.extend(define_classes_inclded_each_context(kwargs['structure'], cont))
-                active_classes = list(
-                        list(train_datasets[i].get_unique_targets()) for i in range(context+1)
-                    )
+                set_active_classes = set()
+                for i in range(context):
+                    set_active_classes |= set(train_datasets[i].get_unique_targets())
+                active_classes = list(set_active_classes)
+                # active_classes = define_classes_context(kwargs['structure'], len(train_datasets))[context-1]
             elif model.neg_samples=="all":
                 #--> always all classes are active
                 active_classes = None
@@ -442,7 +447,6 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
     classes_count = {i:0 for i in range(NUM_CLASSES)}
     for i in range(len(train_datasets)):
         for c in range(NUM_CLASSES):
-            # classes_count[c] += 1 if c in define_classes_inclded_each_context(2, i) else 0
             classes_count[c] += 1 if c in train_datasets[i].get_unique_targets() else 0
 
     for c in cxts_results["recall_per_class"]:
@@ -463,22 +467,7 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
     tbl.add_row([round(cxts_results["avg_performance"][metric], 4) for metric in tbl.field_names])
     print(tbl)
 
-    # per_class_avg, perf_avg = {}, {}
-    # for res in cxts_results:
-    #     for key in res[0]:
-    #         try:
-    #             v = res[0][key]
-    #             print(v, per_class_avg[key])
-    #             per_class_avg[key] += v if str(v) != 'nan' else 0
-    #         except KeyError:
-    #             per_class_avg.setdefault(key, res[0][key])
-    #     for key in res[1]:
-    #         try:
-    #             v = res[0][key]
-    #             perf_avg[key] += v if str(v) != 'nan' else 0
-    #         except KeyError:
-    #             perf_avg.setdefault(key, res[1][key])
-
+    plot_contexts_infos(f"./store/plots/plot-contexts-acc-scenario{kwargs['structure']}", cxts_results['contexts_acc'], cxts_results['contexts_rec'])
 
 #------------------------------------------------------------------------------------------------------------#
 

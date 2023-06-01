@@ -10,6 +10,8 @@ from torch.utils.data import DataLoader,TensorDataset
 from models.fc import excitability_modules as em
 from data.available import AVAILABLE_TRANSFORMS
 
+from visual import visual_plt
+
 ##-------------------------------------------------------------------------------------------------------------------##
 
 #######################
@@ -205,6 +207,36 @@ def bias_init(model, strategy="constant", value=0.01):
                 nn.init.uniform_(p, a=-value, b=value)
             else:
                 raise ValueError("Invalid bias-initialization strategy {}".format(strategy))
+
+
+##-------------------------------------------------------------------------------------------------------------------##
+
+########################################
+## Parameter-initialization functions ##
+########################################
+def plot_contexts_infos(filename, accs={}, recalls={}):
+
+    titles = [f"context {i}" for i in accs]
+    vals = [(accs[i], recalls[i]) for i in accs]
+
+    # open pdf
+    pp = visual_plt.open_pdf(f"{filename}.pdf")
+    figure_list = []
+
+    # bars-plot
+    figure = visual_plt.plot_bars(vals, names=['accuracy', 'recall'], title_list=titles, 
+                                  colors=['blue', 'red'], 
+                                  top_title='Evaluation of accuracy and recall over contexts',
+                                  ylim=(0,1))
+    figure_list.append(figure)
+
+    # add all figures to pdf
+    for figure in figure_list:
+        pp.savefig(figure)
+
+    # close the pdf
+    pp.close()
+
 
 ##-------------------------------------------------------------------------------------------------------------------##
 
