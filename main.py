@@ -470,6 +470,7 @@ def run(args, verbose=False):
                 gen_iters=g_iters,
                 gen_loss_cbs=generator_loss_cbs,
                 structure=args.structure,
+                watch_clients=args.fl_watch_clients,
             )
         else:
             train_fn(

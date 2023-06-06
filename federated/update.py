@@ -21,8 +21,10 @@ class DatasetSplit(Dataset):
 
 
 class LocalUpdate(object):
-    def __init__(self, train_datasets, idxs, train_fn, iters, batch_size, baseline, loss_cbs, eval_cbs, sample_cbs, context_cbs, generator, gen_iters, gen_loss_cbs, **kwargs):
+    def __init__(self, train_datasets, idxs, client_id, watch, train_fn, iters, batch_size, baseline, loss_cbs, eval_cbs, sample_cbs, context_cbs, generator, gen_iters, gen_loss_cbs, **kwargs):
         self.traindata = [ DatasetSplit(train_dataset, idxs[i]) for i, train_dataset in enumerate(train_datasets)]
+        self.client_id = client_id
+        self.watch = watch
         self.train_fn = train_fn
         self.iters = iters
         self.batch_size = batch_size
@@ -50,6 +52,8 @@ class LocalUpdate(object):
             generator=self.generator,
             gen_iters=self.gen_iters,
             gen_loss_cbs=self.gen_loss_cbs,
+            fl=True,
+            client_id=(self.client_id if self.watch else None),
             **self.kwargs,
         )
         return model.state_dict()

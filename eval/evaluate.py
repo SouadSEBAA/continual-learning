@@ -145,7 +145,7 @@ def test_acc(model, dataset, batch_size=128, test_size=1024, verbose=True, conte
 
 
 def test_all_so_far(model, datasets, current_context, iteration, test_size=None, no_context_mask=False,
-                    visdom=None, summary_graph=True, plotting_dict=None, verbose=False):
+                    visdom=None, summary_graph=True, plotting_dict=None, verbose=False, fl=False, client_id=None):
     '''Evaluate accuracy of a classifier (=[model]) on all contexts so far (= up to [current_context]) using [datasets].
 
     [visdom]      None or <dict> with name of "graph" and "env" (if None, no visdom-plots are made)'''
@@ -184,15 +184,16 @@ def test_all_so_far(model, datasets, current_context, iteration, test_size=None,
     # Send results to visdom server
     names = ['context {}'.format(i + 1) for i in range(n_contexts)]
     if visdom is not None:
-        visual_visdom.visualize_scalars(
-            precs, names=names, title="accuracy ({})".format(visdom["graph"]),
-            iteration=iteration, env=visdom["env"], ylabel="test accuracy"
-        )
-        if n_contexts>1 and summary_graph:
+        if not fl or (client_id is not None):
             visual_visdom.visualize_scalars(
-                [average_precs], names=["ave"], title="ave accuracy ({})".format(visdom["graph"]),
+                precs, names=names, title="accuracy ({})".format(visdom["graph"]),
                 iteration=iteration, env=visdom["env"], ylabel="test accuracy"
             )
+            if n_contexts>1 and summary_graph:
+                visual_visdom.visualize_scalars(
+                    [average_precs], names=["ave"], title="ave accuracy ({})".format(visdom["graph"]),
+                    iteration=iteration, env=visdom["env"], ylabel="test accuracy"
+                )
 
 
 def initiate_plotting_dict(n_contexts):

@@ -34,8 +34,12 @@ def train_fl(
     generator=None,
     gen_iters=0,
     gen_loss_cbs=list(),
+    watch_clients=[], # Idxs of clients to watch with visdom
     **kwargs,
 ):
+    watch_clients = [ int(x) for x in watch_clients ]
+    assert(all(cid < num_clients for cid in watch_clients))
+
     # Dictionary that contains a list of dataset indexes for each context
     user_groups = sample_fn(train_datasets, num_clients, num_shards=num_shards, minval=minval, maxval=maxval)
 
@@ -59,6 +63,8 @@ def train_fl(
             print(f" Client ID: {idx} ".center(70, '*'))
             local_update = LocalUpdate(
                 train_datasets=train_datasets,
+                client_id=idx,
+                watch=(idx in watch_clients),
                 idxs=user_groups[idx],
                 train_fn=local_train_fn,
                 iters=local_iters,

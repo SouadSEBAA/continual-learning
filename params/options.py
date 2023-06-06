@@ -1,4 +1,5 @@
 import argparse
+from functools import partial
 
 ##-------------------------------------------------------------------------------------------------------------------##
 
@@ -363,6 +364,8 @@ def add_fl_options(parser, **kwargs):
     fl_params.add_argument("--fl-threaded", action="store_true", help="Use multithreading", default=False)
     fl_params.add_argument('--fl-min-val', type=float, help='minimum percentage value for non-IID distribution (2)', default=0.05)
     fl_params.add_argument('--fl-max-val', type=float, help='maximum percentage value for non-IID distribution (2)', default=0.15)
+    split_comma = partial(str.split, sep=',')
+    fl_params.add_argument('--fl-watch-clients', type=split_comma, help='FL clients to watch in visdom (example: --fl-watch-clients 0,1,3)', default=[])
     return parser
 
 ##-------------------------------------------------------------------------------------------------------------------##
