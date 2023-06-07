@@ -214,19 +214,19 @@ def bias_init(model, strategy="constant", value=0.01):
 ########################################
 ## Parameter-initialization functions ##
 ########################################
-def plot_contexts_infos(filename, accs={}, recalls={}):
+def plot_contexts_infos(filename, accs={}, recalls={}, fpr={}):
 
     titles = [f"context {i}" for i in accs]
-    vals = [(accs[i], recalls[i]) for i in accs]
+    vals = [(accs[i], recalls[i], fpr[i]) for i in accs]
 
     # open pdf
     pp = visual_plt.open_pdf(f"{filename}.pdf")
     figure_list = []
 
     # bars-plot
-    figure = visual_plt.plot_bars(vals, names=['accuracy', 'recall'], title_list=titles, 
-                                  colors=['blue', 'red'], 
-                                  top_title='Evaluation of accuracy and recall over contexts',
+    figure = visual_plt.plot_bars(vals, names=['accuracy', 'recall', 'FPR'], title_list=titles, 
+                                  colors=['blue', 'red', 'black'], 
+                                  top_title='Evaluation of accuracy, recall and FPR over contexts',
                                   ylim=(0,1))
     figure_list.append(figure)
 

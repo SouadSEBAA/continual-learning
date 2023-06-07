@@ -13,66 +13,14 @@ NUM_COLUMNS = 81
 IMAGE_EDGE_SIZE = int(math.sqrt(NUM_COLUMNS))
 NUM_CLASSES = 9
 
-def clean_dataset(df: pd.DataFrame, verbose=True):
-    df.drop(columns=['Unnamed: 0', 'Attack Tool', 'Label' if not LABEL_COLUMN == 'Label' else 'Attack Type'], inplace=True) # Seq
-    # df.drop(columns=['Label' if not LABEL_COLUMN == 'Label' else 'Attack Type'], inplace=True) # Seq
-    # drop columns that contain a lot of null values
-    for col in df.columns:
-        if df[col].isnull().sum() > (len(df) * 0.7):
-            df.drop(columns = [col], inplace=True)
-            # pass
-    # drop rows that contain NaN values and duplicates
-    df.drop_duplicates(inplace=True)
-    #print('number of distinct value in class column after deleting duplicates', len(df[LABEL_COLUMN].unique()))
-    df.dropna(inplace=True)
-    #print('number of distinct value in class column after deleting rows with na values', len(df[LABEL_COLUMN].unique()))
-
-    # reduce the classes percentage
-    reduce_class(df, LABEL_COLUMN, 'Benign', 0.4)
-    reduce_class(df, LABEL_COLUMN, 'UDPFlood', 0.9)
-    reduce_class(df, LABEL_COLUMN, 'HTTPFlood', 0.6) #0.33)
-    reduce_class(df, LABEL_COLUMN, 'SYNScan', 0.3) #0.33)
-
-    verbose and print('\nClasses percentage after balancing some classes:', df[LABEL_COLUMN].value_counts(normalize=True))
+def setup_dataset(df: pd.DataFrame, verbose=True):
+    verbose and print('\nClasses percentage:', df[LABEL_COLUMN].value_counts(normalize=True))
     verbose and print('Classes samples count:', df[LABEL_COLUMN].value_counts(normalize=False))
 
-    #  standard normalization
-
-    # change type of True/False columns to bool
-    d = {}
-    for col in df.columns:
-        vals = df[col].unique()
-        if len(vals) in [1,2]:
-            d[col] = bool
-            # to try the dataset version where there are only numerical values
-            # df.drop(columns=[col], inplace=True)
-    df = df.astype(d)
-    #print('len', len(df.select_dtypes(exclude=['number']).columns))
-    #print('set', set(df.dtypes))
-    # normalize float and int columns
-    s = df.select_dtypes(include=['float', 'int'])
-    s = (s - s.mean())/s.std()
-    for col in s: 
-        df[col] = s[col]
-    # rechange type of bool columns to int
-    d = {} 
-    for col in df.columns:
-        vals = df[col].unique()
-        if len(vals) in [1,2]:
-            d[col] = int
-    df = df.astype(d)
-    #print('number of distinct value in class column after cleaning', len(df[LABEL_COLUMN].unique()))
     for i in range(NUM_COLUMNS - len(df.columns) + 1):
         df[f'nan{i}'] = 0
-    print(f'number of columns {len(df.columns)}')
-    print(f'number of rows {len(df)}')
 
-def resample_class(df, class_val, p):
-    minority_class = df[df[LABEL_COLUMN] == class_val].copy()
-    duplicated_samples = minority_class.sample(n=int(len(df)*p), replace=True)
-    df.drop(minority_class.index, inplace=True)
-    return  pd.concat([df, duplicated_samples], ignore_index=True)
-    #df = df.sample(frac=1, random_state=42)
+    print(f'number of columns {len(df.columns)}')
 
 def reduce_class(df, col_name, class_val, p):
     indices = df.index[df[col_name] == class_val]
@@ -112,7 +60,8 @@ class networkDataset(Dataset):
             return
 
         df = pd.read_csv(src_file)
-        clean_dataset(df)
+        setup_dataset(df)
+        print(f'number of columns {len(df.columns)}')
         le = LabelEncoder()
         df[LABEL_COLUMN] = le.fit_transform(df[LABEL_COLUMN])
         if verbose:
@@ -136,19 +85,11 @@ class networkDataset(Dataset):
         return len(self.data)
     
     def __getitem__(self, index):
-        # if torch.is_tensor(idx):
-        #     idx = idx.tolist()
-        # preds = self.x_data[idx, :]
-        # pol = self.y_data[idx]
-        # sample = {'predictors': preds, 'political': pol}
-
         vector, target = self.data[index], self.targets[index]
 
         # doing this so that it is consistent with all other datasets
         # to return a PIL Image
         img = Image.fromarray(np.reshape(vector, (IMAGE_EDGE_SIZE,IMAGE_EDGE_SIZE)), mode="L")
-
-        #print(img)
 
         if self.transform is not None:
             img = self.transform(img)
@@ -183,8 +124,6 @@ AVAILABLE_TRANSFORMS = {
         transforms.ToTensor(),
     ],
     '5GNIDD': [
-        #transforms.Pad(1),
-        #transforms.ToPILImage(),
         transforms.ToTensor(),
     ],
     'CIFAR10_norm': [

@@ -5,9 +5,7 @@ from torch.utils.data import ConcatDataset
 from data.manipulate import permutate_image_pixels, SubDataset, TransformedDataset
 from data.available import AVAILABLE_DATASETS, AVAILABLE_TRANSFORMS, DATASET_CONFIGS, NUM_CLASSES
 
-from sklearn.model_selection import StratifiedKFold, KFold
 from sklearn.model_selection import train_test_split
-from random import choices
 from functools import lru_cache
 
 def get_dataset(name, type='train', download=True, capacity=None, permutation=None, dir='./store/datasets',
@@ -136,42 +134,6 @@ def get_context_set(name, scenario, contexts, data_dir="./datasets", only_config
         classes = config['classes']
         perm_class_list = np.array(list(range(classes))) if exception else np.random.permutation(list(range(classes)))
         target_transform = transforms.Lambda(lambda y, p=perm_class_list: int(p[y]))
-        # prepare train and test datasets with all classes
-        # trainset = get_dataset(data_type, type="train", dir=data_dir, target_transform=target_transform,
-        #                        verbose=verbose, augment=augment, normalize=normalize)
-        # testset = get_dataset(data_type, type="test", dir=data_dir, target_transform=target_transform, verbose=verbose,
-        #                       augment=augment, normalize=normalize)
-        # generate labels-per-dataset (if requested, training data is split up per class rather than per context)
-        # labels_per_dataset_train = [[label] for label in range(classes)] if train_set_per_class else [
-            # list(np.array(range(classes_per_context))+classes_per_context*context_id) for context_id in range(contexts)
-        # ]
-        # labels_per_dataset_test = [
-            # list(np.array(range(classes_per_context))+classes_per_context*context_id) for context_id in range(contexts)
-        # ]
-        # split the train and test datasets up into sub-datasets
-
-        # train_datasets = []
-        # i = 0
-        # print('\ntraining contexts:')
-        # for labels in labels_per_dataset_train:
-        #     target_transform = transforms.Lambda(lambda y, x=labels[0]: y-x) if (
-        #             scenario=='domain' or (scenario=='task' and singlehead)
-        #     ) else None
-        #     subdataset = SubDataset(trainset, labels, target_transform=target_transform)
-        #     train_datasets.append(subdataset)
-        #     print(f'context {i}: {labels}, number of samples = {len(subdataset)}')
-        #     i += 1
-        # i = 0
-        # test_datasets = []
-        # print('\ntest contexts:')
-        # for labels in labels_per_dataset_test:
-        #     target_transform = transforms.Lambda(lambda y, x=labels[0]: y-x) if (
-        #             scenario=='domain' or (scenario=='task' and singlehead)
-        #     ) else None
-        #     subdataset = SubDataset(testset, labels, target_transform=target_transform)
-        #     test_datasets.append(subdataset)
-        #     print(f'context {i}: {labels}, number of samples = {len(subdataset)}')
-        #     i += 1
         
         print(f"\nScenario: {structure}")
         train_datasets, test_datasets = [], []
@@ -182,6 +144,7 @@ def get_context_set(name, scenario, contexts, data_dir="./datasets", only_config
         included_classes = define_classes_context(structure, contexts)
         class_counts = {item[0]:[item[1],0] for item in count_classes(included_classes, contexts).items()}
 
+        # split the train and test datasets up into sub-datasets
         for i in range(contexts):
             for j in range(classes):
                 if class_counts[j][0]:
@@ -196,9 +159,9 @@ def get_context_set(name, scenario, contexts, data_dir="./datasets", only_config
                         subset = (np.concatenate((subset[0], X[idx]), axis=0), np.concatenate((subset[1], Y[idx]), axis=0))
             subsets.append(subset)
         
+        # prepare train and test datasets with all classes
         for i in range(contexts):
             x_train, x_test, y_train, y_test = train_test_split(subsets[i][0], subsets[i][1])
-            # included_classes = define_classes_inclded_each_context(structure, i, included_classes_so_far=included_classes)
 
             print(f'context {i+1}: ')
 
@@ -246,8 +209,36 @@ def define_one_context_classes(structure, i, included_classes_so_far=[]):
             included_classes = [0,1,2,3,4,5,6,7]
         elif i == 7:
             included_classes = [0,1,2,3,4,5,6,7,8]
-        elif i == 8:
-            included_classes = [0,1,2,3,4,5,6,7,8]
+    elif structure == 3:
+        # this order gave 0.91 of accuracy
+        if i == 0:
+            included_classes = [0,5]
+        elif i == 1:
+            included_classes = [0,5,6]
+        elif i == 2:
+            included_classes = [0,5,6,3]
+        elif i == 3:
+            included_classes = [0,5,6,3,4]
+        elif i == 4:
+            included_classes = [0,5,6,3,4,7]
+        elif i == 5:
+            included_classes = [0,5,6,3,4,7,1]
+        elif i == 6:
+            included_classes = [0,5,6,3,4,7,1,8]
+        elif i == 7:
+            included_classes = [0,5,6,3,4,7,1,8,2]
+    elif structure == 4:
+        # for scenario 4 in the draft
+        if i == 0:
+            included_classes = [0,7]
+        elif i == 1:
+            included_classes = [0,7,8,5]
+        elif i == 2:
+            included_classes = [0,7,8,5,1,4]
+        elif i == 3:
+            included_classes = [0,7,8,5,1,4,2,3]
+        elif i == 4:
+            included_classes = [0,7,8,5,1,4,2,3,6]
 
         # this order gave 0.28 of accuracy with lr=0.01
         # if i == 0:
@@ -267,35 +258,16 @@ def define_one_context_classes(structure, i, included_classes_so_far=[]):
         # elif i == 7:
         #     included_classes = [0,4,6,1,3,7,8,2,5]
         # elif i == 8:
-        #     included_classes = [0,4,6,1,3,7,8,2,5]
-
-        # if i == 0:
-        #     included_classes = [8,0]
-        # elif i == 1:
-        #     included_classes = [8,0,1]
-        # elif i == 2:
-        #     included_classes = [8,0,1,2]
-        # elif i == 3:
-        #     included_classes = [8,0,1,2,3]
-        # elif i == 4:
-        #     included_classes = [8,1,0,2,3,4]
-        # elif i == 5:
-        #     included_classes = [8,1,0,2,3,4,5]
-        # elif i == 6:
-        #     included_classes = [8,1,0,2,3,4,5,6]
-        # elif i == 7:
-        #     included_classes = [8,1,0,2,3,4,5,6,7]
-        # elif i == 8:
-        #     included_classes = [8,1,0,2,3,4,5,6,7]
+         #    included_classes = [0,4,6,1,3,7,8,2,5]
 
     # add classes incrementally in a random manner
-    else:
-        if i == 0:
-            included_classes = [0, *choices(range(1,NUM_CLASSES)) ]
-        else:
-            for _ in range(structure - 2):
-                if len(s:=set(range(NUM_CLASSES)).difference(included_classes)) != 0:
-                    included_classes += choices(list(s)) 
+    # else:
+    #     if i == 0:
+    #         included_classes = [0, *choices(range(1,NUM_CLASSES)) ]
+    #     else:
+    #         for _ in range(structure - 2):
+    #             if len(s:=set(range(NUM_CLASSES)).difference(included_classes)) != 0:
+    #                 included_classes += choices(list(s)) 
 
     return included_classes
 

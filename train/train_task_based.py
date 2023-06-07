@@ -55,6 +55,7 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
         'avg_performance': {},
         'contexts_acc': {},
         'contexts_rec': {},
+        'binary FPR': {},
     }
 
     # Loop over all contexts.
@@ -467,7 +468,12 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
     tbl.add_row([round(cxts_results["avg_performance"][metric], 4) for metric in tbl.field_names])
     print(tbl)
 
-    plot_contexts_infos(f"./store/plots/plot-contexts-acc-scenario{kwargs['structure']}", cxts_results['contexts_acc'], cxts_results['contexts_rec'])
+    plot_contexts_infos(
+        f"./store/plots/plot-contexts-acc-scenario{kwargs['structure']}", 
+        cxts_results['contexts_acc'], 
+        cxts_results['contexts_rec'], 
+        cxts_results['binary FPR'],
+    )
 
 #------------------------------------------------------------------------------------------------------------#
 
