@@ -20,6 +20,7 @@ from params import options
 from params.param_stamp import get_param_stamp, get_param_stamp_from_args, visdom_name
 from params.param_values import set_method_options,check_for_errors,set_default_values
 from eval import evaluate, callbacks as cb
+import federated.callbacks as fl_cb
 from visual import visual_plt
 
 from prettytable import PrettyTable
@@ -421,6 +422,17 @@ def run(args, verbose=False):
         else:
             train_fl_fn = train_fl
 
+        # Callback functions to visualize accuracy after every global round
+        global_eval_cbs = [
+            fl_cb._global_eval_cb(
+                log=args.fl_acc_log,
+                n_classes=NUM_CLASSES,
+                test_datasets=test_datasets,
+                test_size=args.fl_acc_n,
+                visdom=visdom,
+            )
+        ]
+
         fl_exp_details(args.fl_iid, args.fl_num_clients, args.fl_frac, args.batch, args.iters, args.fl_global_iters)
 
     #-------------------------------------------------------------------------------------------------#
@@ -466,6 +478,7 @@ def run(args, verbose=False):
                 eval_cbs=eval_cbs,
                 sample_cbs=sample_cbs,
                 context_cbs=context_cbs,
+                global_eval_cbs=global_eval_cbs,
                 generator=generator,
                 gen_iters=g_iters,
                 gen_loss_cbs=generator_loss_cbs,

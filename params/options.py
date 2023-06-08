@@ -366,6 +366,8 @@ def add_fl_options(parser, **kwargs):
     fl_params.add_argument('--fl-max-val', type=float, help='maximum percentage value for non-IID distribution (2)', default=0.15)
     split_comma = partial(str.split, sep=',')
     fl_params.add_argument('--fl-watch-clients', type=split_comma, help='FL clients to watch in visdom (example: --fl-watch-clients 0,1,3)', default=[])
+    fl_params.add_argument('--fl-acc-n', type=int, default=1024, help="# samples to evaluate accuracy (after each global round)")
+    fl_params.add_argument('--fl-acc-log', type=int, metavar="N", default=1, help="# global rounds after which to plot accuracy")
     return parser
 
 ##-------------------------------------------------------------------------------------------------------------------##

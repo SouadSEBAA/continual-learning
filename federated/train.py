@@ -31,6 +31,7 @@ def train_fl(
     eval_cbs=list(),
     sample_cbs=list(),
     context_cbs=list(),
+    global_eval_cbs=list(),
     generator=None,
     gen_iters=0,
     gen_loss_cbs=list(),
@@ -95,6 +96,9 @@ def train_fl(
 
         # Update global weights
         global_model.load_state_dict(global_weights)
+
+        for cb in filter(lambda x: x is not None, global_eval_cbs):
+            cb(global_model, epoch)
 
 def train_fl_threaded(
     global_model: nn.Module,
