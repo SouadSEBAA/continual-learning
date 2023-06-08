@@ -96,8 +96,7 @@ def _eval_after_each_context_cb(test_datasets, verbose=True, S='mean'):
         
         res['contexts_acc'][context] = context_acc
         res['contexts_rec'][context] = avg['macro recall']
-
-        # return per_class, avg
+        res['binary FPR'][context] = avg['binary FPR']
 
     ## Return the callback-function (except if visdom is not selected!)
     return eval_cb

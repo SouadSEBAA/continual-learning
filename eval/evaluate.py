@@ -20,12 +20,6 @@ def calc_metrics(cm):
         # 'precision': confusion_matrix.diagonal()/confusion_matrix.sum(axis=0),
         'recall': cm.diagonal() / cm.sum(axis=1),
     }
-    # if True and verbose:
-        # print(f'confusion_matrix.rows.sum = {confusion_matrix.sum(axis=1)}')
-        # print(f'confusion_matrix.cols.sum = {confusion_matrix.sum(axis=0)}')
-        # print(f'tp = {tp}')
-        # print(f'recall = {recall}, precision = {precision}')
-        # print(f'=> class {i}: \n\tprecision: {precision:.3f} \n\trecall: {recall:.3f} \n\tacc: {acc:.3f} \n\tf1-score: {f1:3f}' )
 
     # average performance
     tp_attacks = cm[1:, 1:].sum()
