@@ -41,7 +41,7 @@ def _eval_cb(log, test_datasets, visdom=None, plotting_dict=None, iters_per_cont
     [test_datasets]       <list> of <Datasets>; also if only 1 context, it should be presented as a list!
     '''
 
-    def eval_cb(classifier, batch, context=1, fl=False, client_id=None):
+    def eval_cb(classifier, batch, context=1):
         '''Callback-function, to evaluate performance of classifier.'''
 
         iteration = batch if (context is None or context==1) else (context-1)*iters_per_context + batch
@@ -55,7 +55,7 @@ def _eval_cb(log, test_datasets, visdom=None, plotting_dict=None, iters_per_cont
 
             # Evaluate the classifier on multiple contexts (and log to visdom)
             evaluate.test_all_so_far(classifier, test_datasets, context, iteration, test_size=test_size,
-                                     visdom=visdom, summary_graph=summary_graph, plotting_dict=plotting_dict, fl=fl, client_id=client_id)
+                                     visdom=visdom, summary_graph=summary_graph, plotting_dict=plotting_dict)
 
     ## Return the callback-function (except if visdom is not selected!)
     return eval_cb if (visdom is not None) or (plotting_dict is not None) else None
@@ -110,7 +110,7 @@ def _eval_after_each_context_cb(test_datasets, verbose=True, S='mean'):
 def _classifier_loss_cb(log=1, visdom=None, model=None, contexts=None, iters_per_context=None, progress_bar=True):
     '''Initiates function for keeping track of, and reporting on, the progress of the classifier's training.'''
 
-    def cb(bar, iter, loss_dict, context=1, fl=False, client_id=None):
+    def cb(bar, iter, loss_dict, context=1):
         '''Callback-function, to call on every iteration to keep track of training progress.'''
 
         if visdom is not None:
@@ -129,27 +129,26 @@ def _classifier_loss_cb(log=1, visdom=None, model=None, contexts=None, iters_per
 
         # log the loss of the solver (to visdom)
         if (visdom is not None) and (iteration % log == 0):
-            if not fl or (client_id is not None):
-                if contexts is None or contexts==1:
-                    plot_data = [loss_dict['pred']]
-                    names = ['prediction']
-                else:
-                    plot_data = [loss_dict['pred']]
-                    names = ['current']
-                    if hasattr(model, 'replay') and not model.replay=='none':
-                        if model.replay_targets == "hard":
-                            plot_data += [loss_dict['pred_r']]
-                            names += ['replay']
-                        elif model.replay_targets == "soft":
-                            plot_data += [loss_dict['distil_r']]
-                            names += ['distill']
-                    if hasattr(model, 'reg_strength') and model.reg_strength>0:
-                        plot_data += [loss_dict['param_reg']]
-                        names += ['param reg']
-                visual_visdom.visualize_scalars(
-                    scalars=plot_data, names=names, iteration=iteration,
-                    title="CLASSIFIER: loss ({})".format(visdom["graph"]), env=visdom["env"], ylabel="training loss"
-                )
+            if contexts is None or contexts==1:
+                plot_data = [loss_dict['pred']]
+                names = ['prediction']
+            else:
+                plot_data = [loss_dict['pred']]
+                names = ['current']
+                if hasattr(model, 'replay') and not model.replay=='none':
+                    if model.replay_targets == "hard":
+                        plot_data += [loss_dict['pred_r']]
+                        names += ['replay']
+                    elif model.replay_targets == "soft":
+                        plot_data += [loss_dict['distil_r']]
+                        names += ['distill']
+                if hasattr(model, 'reg_strength') and model.reg_strength>0:
+                    plot_data += [loss_dict['param_reg']]
+                    names += ['param reg']
+            visual_visdom.visualize_scalars(
+                scalars=plot_data, names=names, iteration=iteration,
+                title="CLASSIFIER: loss ({})".format(visdom["graph"]), env=visdom["env"], ylabel="training loss"
+            )
 
     # Return the callback-function.
     return cb

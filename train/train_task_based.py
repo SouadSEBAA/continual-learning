@@ -16,7 +16,7 @@ from utils import plot_contexts_infos
 
 def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
              loss_cbs=list(), eval_cbs=list(), sample_cbs=list(), context_cbs=list(),
-             generator=None, gen_iters=0, gen_loss_cbs=list(), fl=False, client_id=None, **kwargs):
+             generator=None, gen_iters=0, gen_loss_cbs=list(), **kwargs):
     '''Train a model (with a "train_a_batch" method) on multiple contexts.
 
     [model]               <nn.Module> main model to optimize across all contexts
@@ -338,10 +338,10 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
                 # Fire callbacks (for visualization of training-progress / evaluating performance after each context)
                 for loss_cb in loss_cbs:
                     if loss_cb is not None:
-                        loss_cb(progress, batch_index, loss_dict, context=context, fl=fl, client_id=client_id)
+                        loss_cb(progress, batch_index, loss_dict, context=context)
                 for eval_cb in eval_cbs:
                     if eval_cb is not None:
-                        eval_cb(model, batch_index, context=context, fl=fl, client_id=client_id)
+                        eval_cb(model, batch_index, context=context)
                 if model.label == "VAE":
                     for sample_cb in sample_cbs:
                         if sample_cb is not None:
@@ -357,7 +357,7 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
                 # Fire callbacks on each iteration
                 for loss_cb in gen_loss_cbs:
                     if loss_cb is not None:
-                        loss_cb(progress_gen, batch_index, loss_dict, context=context, fl=fl, client_id=client_id)
+                        loss_cb(progress_gen, batch_index, loss_dict, context=context)
                 for sample_cb in sample_cbs:
                     if sample_cb is not None:
                         sample_cb(generator, batch_index, context=context)

@@ -423,13 +423,22 @@ def run(args, verbose=False):
             train_fl_fn = train_fl
 
         # Callback functions to visualize accuracy after every global round
-        global_eval_cbs = [
-            fl_cb._global_eval_cb(
+        fl_global_eval_cbs = [
+            fl_cb._fl_global_eval_cb(
                 log=args.fl_acc_log,
-                n_classes=NUM_CLASSES,
                 test_datasets=test_datasets,
                 test_size=args.fl_acc_n,
                 visdom=visdom,
+            )
+        ]
+        # Callback functions to visualize accuracy for a certain client in a certain global round
+        fl_eval_cbs = [
+            fl_cb._fl_eval_cb(
+                log=args.acc_log,
+                test_datasets=test_datasets,
+                test_size=args.acc_n,
+                visdom=visdom,
+                iters_per_context=args.iters,
             )
         ]
 
@@ -475,10 +484,10 @@ def run(args, verbose=False):
                 batchs_size=args.batch,
                 baseline=baseline,
                 loss_cbs=loss_cbs,
-                eval_cbs=eval_cbs,
+                eval_cbs=fl_eval_cbs,
                 sample_cbs=sample_cbs,
                 context_cbs=context_cbs,
-                global_eval_cbs=global_eval_cbs,
+                global_eval_cbs=fl_global_eval_cbs,
                 generator=generator,
                 gen_iters=g_iters,
                 gen_loss_cbs=generator_loss_cbs,
