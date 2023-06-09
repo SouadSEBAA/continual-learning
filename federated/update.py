@@ -43,7 +43,7 @@ class LocalUpdate(object):
             cb_wrapper(global_round, self.client_id) if self.watch else None
             for cb_wrapper in filter(lambda x: x is not None, self.eval_cbs)
         ]
-        self.train_fn(
+        loss_dict = self.train_fn(
             model,
             self.traindata,
             iters=self.iters,
@@ -58,4 +58,4 @@ class LocalUpdate(object):
             gen_loss_cbs=self.gen_loss_cbs,
             **self.kwargs,
         )
-        return model.state_dict()
+        return model.state_dict(), loss_dict

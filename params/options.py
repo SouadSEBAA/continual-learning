@@ -368,6 +368,8 @@ def add_fl_options(parser, **kwargs):
     fl_params.add_argument('--fl-watch-clients', type=split_comma, help='FL clients to watch in visdom (example: --fl-watch-clients 0,1,3)', default=[])
     fl_params.add_argument('--fl-acc-n', type=int, default=1024, help="# samples to evaluate accuracy (after each global round)")
     fl_params.add_argument('--fl-acc-log', type=int, metavar="N", default=1, help="# global rounds after which to plot accuracy")
+    fl_params.add_argument('--fl-loss-log', type=int, default=1, help="# global rounds after which to plot loss")
+    fl_params.add_argument('--fl-vis-single-context', action="store_true", default=False, help="visualize contexts separately")
     return parser
 
 ##-------------------------------------------------------------------------------------------------------------------##

@@ -32,6 +32,7 @@ def train_fl(
     sample_cbs=list(),
     context_cbs=list(),
     global_eval_cbs=list(),
+    global_loss_cbs=list(),
     generator=None,
     gen_iters=0,
     gen_loss_cbs=list(),
@@ -84,7 +85,7 @@ def train_fl(
             #     model=copy.deepcopy(global_model),
             #     global_round=epoch,
             # )
-            weights = local_update.update_weights(
+            weights, loss_dict = local_update.update_weights(
                 model=copy.deepcopy(global_model),
                 global_round=epoch,
             )
@@ -99,6 +100,8 @@ def train_fl(
 
         for cb in filter(lambda x: x is not None, global_eval_cbs):
             cb(global_model, epoch + 1)
+        for cb in filter(lambda x: x is not None, global_loss_cbs):
+            cb(loss_dict, epoch + 1)
 
 def train_fl_threaded(
     global_model: nn.Module,

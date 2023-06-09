@@ -32,6 +32,8 @@ def _visualize_scalars(scalars, names, title, iteration, env, xlabel, ylabel=Non
         env.line(X=X, Y=Y, win=_WINDOW_CASH[title], opts=options, update='append')
     else:
         _WINDOW_CASH[title] = env.line(X=X, Y=Y, opts=options)
+    # Save env
+    env.save([env.env])
 
 def visualize_scalars(scalars, names, title, iteration, env, ylabel=None):
     return _visualize_scalars(scalars, names, title, iteration, env, xlabel="Iterations", ylabel=ylabel)

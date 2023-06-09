@@ -358,22 +358,30 @@ def run(args, verbose=False):
         if verbose:
             print('\n\n'+' VISDOM '.center(70, '*'))
         from visdom import Visdom
-        env_name = "{exp}{con}-{sce}".format(exp=args.experiment, con=args.contexts, sce=args.scenario)
+        from datetime import datetime
+        import sys
+        now = datetime.now()
+        dt_string = now.strftime("%d-%m-%Y_%H:%M:%S")
+        env_name = "{exp}{con}-{sce}-{dt}".format(exp=args.experiment, con=args.contexts, sce=args.scenario, dt=dt_string)
         visdom = {'env': Visdom(env=env_name), 'graph': visdom_name(args)}
+        visdom["env"].text("<h3 style='color: black;'>{}</h3>".format(' '.join(sys.argv)), opts={"title": "Command"})
     else:
         visdom = None
 
     # Callbacks for reporting and visualizing loss
+
+    # Do not log loss to visdom if using FL
+    loss_visdom = None if args.fl else visdom
     generator_loss_cbs = [
-        cb._VAE_loss_cb(log=args.loss_log, visdom=visdom, replay=False if args.replay=="none" else True,
+        cb._VAE_loss_cb(log=args.loss_log, visdom=loss_visdom, replay=False if args.replay=="none" else True,
                         model=model if checkattr(args, 'feedback') else generator, contexts=args.contexts,
                         iters_per_context=args.iters if checkattr(args, 'feedback') else args.g_iters)
     ] if (train_gen or checkattr(args, 'feedback')) else [None]
     loss_cbs = [
         cb._gen_classifier_loss_cb(
-            log=args.loss_log, classes=config['classes'], visdom=visdom if args.loss_log>args.iters else None,
+            log=args.loss_log, classes=config['classes'], visdom=loss_visdom if args.loss_log>args.iters else None,
         ) if checkattr(args, 'gen_classifier') else cb._classifier_loss_cb(
-            log=args.loss_log, visdom=visdom, model=model, contexts=args.contexts, iters_per_context=args.iters,
+            log=args.loss_log, visdom=loss_visdom, model=model, contexts=args.contexts, iters_per_context=args.iters,
         )
     ] if (not checkattr(args, 'feedback')) else generator_loss_cbs
 
@@ -422,7 +430,7 @@ def run(args, verbose=False):
         else:
             train_fl_fn = train_fl
 
-        # Callback functions to visualize accuracy after every global round
+        # Callback functions to visualize accuracy after `args.fl_acc_log` global round
         fl_global_eval_cbs = [
             fl_cb._fl_global_eval_cb(
                 log=args.fl_acc_log,
@@ -439,6 +447,14 @@ def run(args, verbose=False):
                 test_size=args.acc_n,
                 visdom=visdom,
                 iters_per_context=args.iters,
+                single_context=args.fl_vis_single_context,
+            )
+        ]
+        # Callback functions to visualize loss after `args.fl_loss_log` global rounds
+        fl_global_loss_cbs = [
+            fl_cb._fl_global_loss_cb(
+                log=args.fl_loss_log,
+                visdom=visdom,
             )
         ]
 
@@ -488,6 +504,7 @@ def run(args, verbose=False):
                 sample_cbs=sample_cbs,
                 context_cbs=context_cbs,
                 global_eval_cbs=fl_global_eval_cbs,
+                global_loss_cbs=fl_global_loss_cbs,
                 generator=generator,
                 gen_iters=g_iters,
                 gen_loss_cbs=generator_loss_cbs,
