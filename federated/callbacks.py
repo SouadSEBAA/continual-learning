@@ -28,9 +28,9 @@ def _fl_global_eval_cb(test_datasets, log=1, visdom=None, test_size=None, S='mea
     return global_eval_cb if (visdom is not None) else None
 
 def _fl_global_loss_cb(log=1, visdom=None):
-    def global_loss_cb(loss_dict, global_round):
+    def global_loss_cb(loss_dicts, global_round):
         if global_round % log == 0:
-            plot_data = [ loss_dict["pred"] ]
+            plot_data = [ sum(loss_dict["pred"] for loss_dict in loss_dicts) / len(loss_dicts) ]
             names = [ "prediction" ]
             visual_visdom._visualize_scalars(
                 scalars=plot_data, names=names, title=f"CLASSIFIER: global loss ({visdom['graph']})",

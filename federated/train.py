@@ -55,7 +55,7 @@ def train_fl(
 
     for epoch in tqdm(range(global_iters), desc="Global Training progress:", leave=True):
         local_weights = []
-        # local_losses = []
+        local_losses = []
 
         global_model.train()
         m = max(int(frac * num_clients), 1)
@@ -81,16 +81,12 @@ def train_fl(
                 gen_loss_cbs=gen_loss_cbs,
                 **kwargs,
             )
-            # w, loss = local_update.update_weights(
-            #     model=copy.deepcopy(global_model),
-            #     global_round=epoch,
-            # )
             weights, loss_dict = local_update.update_weights(
                 model=copy.deepcopy(global_model),
                 global_round=epoch,
             )
             local_weights.append(copy.deepcopy(weights))
-            # local_losses.append(copy.deepcopy(loss))
+            local_losses.append(copy.deepcopy(loss_dict))
 
         # Calculate global weights
         global_weights = average_weights(local_weights)
@@ -101,7 +97,7 @@ def train_fl(
         for cb in filter(lambda x: x is not None, global_eval_cbs):
             cb(global_model, epoch)
         for cb in filter(lambda x: x is not None, global_loss_cbs):
-            cb(loss_dict, epoch)
+            cb(local_losses, epoch)
 
 def train_fl_threaded(
     global_model: nn.Module,
