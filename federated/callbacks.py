@@ -39,7 +39,10 @@ def _fl_global_loss_cb(log=1, visdom=None):
     
     return global_loss_cb if (visdom is not None) else None
 
-def _fl_eval_cb(log, test_datasets, visdom=None, test_size=None, iters_per_context=None, single_context=False, S='mean'):
+def _fl_eval_cb(log, test_datasets, visdom=None, test_size=None, iters_per_context=None, single_context=False, all_rounds=True, S='mean'):
+    # if single_context and all_rounds:
+    #     raise AssertionError("Cannot set both single_context and all_rounds to True")
+
     def eval_cb_wrapper(global_round, client_id):
         def eval_cb(classifier, batch, context=1):
             iteration = batch if (context is None or context == 1) else (context - 1) * iters_per_context + batch
@@ -64,6 +67,7 @@ def _fl_eval_cb(log, test_datasets, visdom=None, test_size=None, iters_per_conte
                     env=visdom["env"],
                     ylabel="test accuracy",
                 )
+
         def eval_cb_single_context(classifier, batch, context):
             iteration = batch
             if iteration % log == 0:
@@ -72,14 +76,29 @@ def _fl_eval_cb(log, test_datasets, visdom=None, test_size=None, iters_per_conte
                 context_id = context - 1
                 prec = evaluate.test_acc(classifier, test_datasets[context_id], test_size=test_size, verbose=False, context_id=context_id)
                 names = [ f"context {context}" ]
-                visual_visdom.visualize_scalars(
-                    [ prec ],
-                    names=names,
-                    title=f"accuracy (Client ID {client_id} - Global Round {global_round + 1} - Context {context} - {visdom['graph']})",
-                    iteration=iteration,
-                    env=visdom["env"],
-                    ylabel="test accuracy",
-                )
-        return eval_cb_single_context if single_context else eval_cb
+                if single_context:
+                    visual_visdom.visualize_scalars(
+                        [ prec ],
+                        names=names,
+                        title=f"accuracy (Client ID {client_id} - Global Round {global_round + 1} - Context {context} - {visdom['graph']})",
+                        iteration=iteration,
+                        env=visdom["env"],
+                        ylabel="test accuracy",
+                    )
+                if all_rounds:
+                    iteration = global_round * iters_per_context + batch
+                    visual_visdom.visualize_scalars(
+                        [ prec ],
+                        names=names,
+                        title=f"accuracy (Client ID {client_id} - Context {context} - {visdom['graph']})",
+                        iteration=iteration,
+                        env=visdom["env"],
+                        ylabel="test accuracy",
+                    )
+
+        if all_rounds or single_context:
+            return eval_cb_single_context
+        else:
+            return eval_cb
     
     return eval_cb_wrapper if (visdom is not None) else None
