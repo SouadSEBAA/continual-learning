@@ -69,7 +69,8 @@ def _fl_eval_cb(log, test_datasets, visdom=None, test_size=None, iters_per_conte
             if iteration % log == 0:
                 if (S is not None) and hasattr(classifier, "S"):
                     classifier.S = S
-                prec = evaluate.test_acc(classifier, test_datasets[context], test_size=test_size, verbose=False, context_id=context)
+                context_id = context - 1
+                prec = evaluate.test_acc(classifier, test_datasets[context_id], test_size=test_size, verbose=False, context_id=context_id)
                 names = [ f"context {context}" ]
                 visual_visdom.visualize_scalars(
                     [ prec ],
