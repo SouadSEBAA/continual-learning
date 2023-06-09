@@ -99,9 +99,9 @@ def train_fl(
         global_model.load_state_dict(global_weights)
 
         for cb in filter(lambda x: x is not None, global_eval_cbs):
-            cb(global_model, epoch + 1)
+            cb(global_model, epoch)
         for cb in filter(lambda x: x is not None, global_loss_cbs):
-            cb(loss_dict, epoch + 1)
+            cb(loss_dict, epoch)
 
 def train_fl_threaded(
     global_model: nn.Module,

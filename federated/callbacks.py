@@ -59,7 +59,7 @@ def _fl_eval_cb(log, test_datasets, visdom=None, test_size=None, iters_per_conte
                 visual_visdom.visualize_scalars(
                     precs,
                     names=names,
-                    title=f"accuracy (Client ID {client_id} - Global Round {global_round} - {visdom['graph']})",
+                    title=f"accuracy (Client ID {client_id} - Global Round {global_round + 1} - {visdom['graph']})",
                     iteration=iteration,
                     env=visdom["env"],
                     ylabel="test accuracy",
@@ -75,7 +75,7 @@ def _fl_eval_cb(log, test_datasets, visdom=None, test_size=None, iters_per_conte
                 visual_visdom.visualize_scalars(
                     [ prec ],
                     names=names,
-                    title=f"accuracy (Client ID {client_id} - Global Round {global_round} - Context {context} - {visdom['graph']})",
+                    title=f"accuracy (Client ID {client_id} - Global Round {global_round + 1} - Context {context} - {visdom['graph']})",
                     iteration=iteration,
                     env=visdom["env"],
                     ylabel="test accuracy",
