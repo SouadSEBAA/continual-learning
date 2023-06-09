@@ -22,7 +22,7 @@ def _fl_global_eval_cb(test_datasets, log=1, visdom=None, test_size=None, S='mea
             average_acc = sum(accs_per_context) / n_contexts
             visual_visdom._visualize_scalars(
                 [average_acc], names=["ave"], title=f"ave accuracy ({visdom['graph']})",
-                iteration=global_round, env=visdom["env"], xlabel="Global rounds", ylabel="test accuracy"
+                iteration=global_round + 1, env=visdom["env"], xlabel="Global rounds", ylabel="test accuracy"
             )
     
     return global_eval_cb if (visdom is not None) else None
@@ -34,7 +34,7 @@ def _fl_global_loss_cb(log=1, visdom=None):
             names = [ "prediction" ]
             visual_visdom._visualize_scalars(
                 scalars=plot_data, names=names, title=f"CLASSIFIER: global loss ({visdom['graph']})",
-                iteration=global_round, env=visdom["env"], xlabel="Global rounds", ylabel="training loss"
+                iteration=global_round + 1, env=visdom["env"], xlabel="Global rounds", ylabel="training loss"
             )
     
     return global_loss_cb if (visdom is not None) else None
