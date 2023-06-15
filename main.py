@@ -358,11 +358,13 @@ def run(args, verbose=False):
         if verbose:
             print('\n\n'+' VISDOM '.center(70, '*'))
         from visdom import Visdom
-        from datetime import datetime
+        from time import time
         import sys
-        now = datetime.now()
-        dt_string = now.strftime("%d-%m-%Y_%H:%M:%S")
-        env_name = "{exp}{con}-{sce}-{dt}".format(exp=args.experiment, con=args.contexts, sce=args.scenario, dt=dt_string)
+        if hasattr(args, "visdom_env_name"):
+            env_name = args.visdom_env_name
+        else:
+            t = int(time())
+            env_name = "{exp}{con}-{sce}-{t}".format(exp=args.experiment, con=args.contexts, sce=args.scenario, t=t)
         visdom = {'env': Visdom(env=env_name), 'graph': visdom_name(args)}
         visdom["env"].text("<h3 style='color: black;'>{}</h3>".format(' '.join(sys.argv)), opts={"title": "Command"})
     else:
