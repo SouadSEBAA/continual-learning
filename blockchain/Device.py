@@ -1024,13 +1024,13 @@ class Device:
             f"Worker {self.idx} is doing local_update with computation power {self.computation_power} and link speed {round(self.link_speed,3)} bytes/s"
         )
         self.net.load_state_dict(self.global_parameters, strict=True)
-        self.local_update_time = time.time()
-        # local worker update by specified epochs
-        # usually, if validator acception time is specified, local_epochs should be 1
         # logging maliciousness
         is_malicious_node = "M" if self.return_is_malicious() else "B"
         self.local_updates_rewards_per_transaction = 0
         eval_cbs = self.eval_cbs + [ log_callback(is_malicious_node) ]
+        self.local_update_time = time.time()
+        # local worker update by specified epochs
+        # usually, if validator acception time is specified, local_epochs should be 1
         self.train_fn(
             self.net,
             self.train_dss,
@@ -1092,18 +1092,18 @@ class Device:
         else:
             validation_net = copy.deepcopy(self.net)
             local_update_time = time.time()
-            # self.train_fn(
-            #     validation_net,
-            #     self.train_dss,
-            #     iters=1,
-            #     batch_size=self.local_batch_size,
-            #     baseline=self.baseline,
-            #     generator=self.generator,
-            #     gen_iters=self.gen_iters,
-            #     structure=self.structure,
-            #     no_eval=True,
-            #     device=self.dev,
-            # )
+            self.train_fn(
+                validation_net,
+                self.train_dss,
+                iters=1,
+                batch_size=self.local_batch_size,
+                baseline=self.baseline,
+                generator=self.generator,
+                gen_iters=self.gen_iters,
+                structure=self.structure,
+                no_eval=True,
+                device=self.dev,
+            )
             return (
                 time.time() - local_update_time
             ) / self.computation_power, validation_net.state_dict()
@@ -1796,18 +1796,18 @@ class Device:
         else:
             updated_net = copy.deepcopy(self.net)
             local_validation_time = time.time()
-            # self.train_fn(
-            #     updated_net,
-            #     self.train_dss,
-            #     iters=1,
-            #     batch_size=self.local_batch_size,
-            #     baseline=self.baseline,
-            #     generator=self.generator,
-            #     gen_iters=self.gen_iters,
-            #     structure=self.structure,
-            #     no_eval=True,
-            #     device=self.dev,
-            # )
+            self.train_fn(
+                updated_net,
+                self.train_dss,
+                iters=1,
+                batch_size=self.local_batch_size,
+                baseline=self.baseline,
+                generator=self.generator,
+                gen_iters=self.gen_iters,
+                structure=self.structure,
+                no_eval=True,
+                device=self.dev,
+            )
             # validate by local test set
             precs = []
             for i, test_ds in enumerate(self.test_dss):
