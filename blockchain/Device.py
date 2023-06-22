@@ -56,7 +56,7 @@ class Device:
         self.train_dss = assigned_train_dss # array of datasets (because it's per context)
         self.test_dss = assigned_test_dss # same
         self.local_batch_size = local_batch_size
-        self.train_dls = [ DataLoader(train_ds, batch_size=self.local_batch_size, shuffle=True) for train_ds in self.train_dss ]
+        # self.train_dls = [ DataLoader(train_ds, batch_size=self.local_batch_size, shuffle=True) for train_ds in self.train_dss ]
         self.network_stability = network_stability
         self.net = copy.deepcopy(net)
         self.dev = dev
@@ -1047,11 +1047,13 @@ class Device:
             structure=self.structure,
             device=self.dev,
         )
-        for epoch in range(local_epochs):
-            for train_dl in self.train_dls:
-                for data, label in train_dl:
-                    self.local_updates_rewards_per_transaction += rewards * (label.shape[0])
-            self.local_total_epoch += 1
+        # for epoch in range(local_epochs):
+        #     for train_dl in self.train_dls:
+        #         for data, label in train_dl:
+        #             self.local_updates_rewards_per_transaction += rewards * (label.shape[0])
+        #     self.local_total_epoch += 1
+        self.local_total_epoch += local_epochs
+        self.local_updates_rewards_per_transaction += rewards * local_epochs
         # local update done
         try:
             self.local_update_time = (
