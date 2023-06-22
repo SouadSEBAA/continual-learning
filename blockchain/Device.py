@@ -1045,6 +1045,7 @@ class Device:
             gen_iters=self.gen_iters,
             gen_loss_cbs=self.gen_loss_cbs,
             structure=self.structure,
+            device=self.dev,
         )
         for epoch in range(local_epochs):
             for train_dl in self.train_dls:
@@ -1099,6 +1100,7 @@ class Device:
                 gen_iters=self.gen_iters,
                 structure=self.structure,
                 no_eval=True,
+                device=self.dev,
             )
             return (
                 time.time() - local_update_time
@@ -1802,6 +1804,7 @@ class Device:
                 gen_iters=self.gen_iters,
                 structure=self.structure,
                 no_eval=True,
+                device=self.dev,
             )
             # validate by local test set
             precs = []

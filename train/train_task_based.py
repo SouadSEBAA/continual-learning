@@ -16,7 +16,7 @@ from utils import plot_contexts_infos
 
 def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
              loss_cbs=list(), eval_cbs=list(), sample_cbs=list(), context_cbs=list(),
-             generator=None, gen_iters=0, gen_loss_cbs=list(), no_eval=False, **kwargs):
+             generator=None, gen_iters=0, gen_loss_cbs=list(), no_eval=False, device=None, **kwargs):
     '''Train a model (with a "train_a_batch" method) on multiple contexts.
 
     [model]               <nn.Module> main model to optimize across all contexts
@@ -34,7 +34,9 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
 
     # Use cuda?
     cuda = model._is_on_cuda()
-    device = model._device()
+    print(f"---------------------- CUDA: {cuda} -------------------")
+    if device is not None:
+        device = model._device()
 
     # Initiate possible sources for replay (no replay for 1st context)
     ReplayStoredData = ReplayGeneratedData = ReplayCurrentData = False
