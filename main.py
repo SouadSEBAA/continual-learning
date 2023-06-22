@@ -42,6 +42,7 @@ def handle_inputs():
     parser = options.add_train_options(parser, **kwargs)
     parser = options.add_cl_options(parser, **kwargs)
     parser = options.add_fl_options(parser, **kwargs)
+    parser = options.add_bc_options(parser, **kwargs)
     # Parse, process and check chosen options
     args = parser.parse_args()
     set_method_options(args)                         # -if a method's "convenience"-option is chosen, select components
