@@ -374,3 +374,264 @@ def add_fl_options(parser, **kwargs):
     return parser
 
 ##-------------------------------------------------------------------------------------------------------------------##
+
+def add_bc_options(parser, **kwargs):
+    bc_params = parser.add_argument_group('Blockchain')
+    # bc_params.add_argument("--fed-avg", action="store_true", help="use FedAvg algorithm for Federated Learning")
+    bc_params.add_argument("--bc", "--blockchain", action="store_true", help="use Blockchain", default=False)
+    # bc_params.add_argument('--fl-num-clients', type=int, help='number of federated clients', default=10)
+    # bc_params.add_argument('--fl-global-iters', type=int, help='number of rounds of training (global)', default=10)
+    bc_params.add_argument("--bc-iid", action="store_true", help="sample dataset in IID fashion (default)", default=True)
+    bc_params.add_argument("--bc-non-iid", action="store_true", help="sample dataset in non-IID fashion", default=False)
+    # bc_params.add_argument("--fl-non-iid-2", action="store_true", help="sample dataset in non-IID fashion (2)", default=False)
+    bc_params.add_argument("--bc-num-shards", type=int, help="number of shards for non-IID distribution", default=20)
+    bc_params.add_argument('--bc-min-val', type=float, help='minimum percentage value for non-IID distribution (2)', default=0.05)
+    bc_params.add_argument('--bc-max-val', type=float, help='maximum percentage value for non-IID distribution (2)', default=0.15)
+    # split_comma = partial(str.split, sep=',')
+    # bc_params.add_argument('--fl-watch-clients', type=split_comma, help='FL clients to watch in visdom (example: --fl-watch-clients 0,1,3)', default=[])
+    # bc_params.add_argument('--fl-acc-n', type=int, default=1024, help="# samples to evaluate accuracy (after each global round)")
+    # bc_params.add_argument('--fl-acc-log', type=int, metavar="N", default=1, help="# global rounds after which to plot accuracy")
+    # bc_params.add_argument('--fl-loss-log', type=int, default=1, help="# global rounds after which to plot loss")
+    # bc_params.add_argument('--fl-vis-single-context', action="store_true", default=False, help="visualize contexts separately")
+    # debug attributes
+    bc_params.add_argument(
+        "-bc-g", "--bc-gpu", type=str, default="0", help="gpu id to use(e.g. 0,1,2,3)"
+    )
+    bc_params.add_argument(
+        "-bc-c", "--bc-cpu", action="store_true", default=False, help="force usage of CPU instead of GPU"
+    )
+    bc_params.add_argument(
+        "-bc-v", "--bc-verbose", type=int, default=1, help="print verbose debug log"
+    )
+    bc_params.add_argument(
+        "-bc-sn",
+        "--bc-save_network_snapshots",
+        type=int,
+        default=0,
+        help="only save network_snapshots if this is set to 1; will create a folder with date in the snapshots folder",
+    )
+    bc_params.add_argument(
+        "-bc-dtx",
+        "--bc-destroy_tx_in_block",
+        type=int,
+        default=0,
+        help="currently transactions stored in the blocks are occupying GPU ram and have not figured out a way to move them to CPU ram or harddisk, so turn it on to save GPU ram in order for PoS to run 100+ rounds. NOT GOOD if there needs to perform chain resyncing.",
+    )
+    bc_params.add_argument(
+        "-bc-rp",
+        "--bc-resume_path",
+        type=str,
+        default=None,
+        help="resume from the path of saved network_snapshots; only provide the date",
+    )
+    bc_params.add_argument(
+        "-bc-sf",
+        "--bc-save_freq",
+        type=int,
+        default=5,
+        help="save frequency of the network_snapshot",
+    )
+    bc_params.add_argument(
+        "-bc-sm",
+        "--bc-save_most_recent",
+        type=int,
+        default=2,
+        help="in case of saving space, keep only the recent specified number of snapshops; 0 means keep all",
+    )
+    # FL attributes
+    # bc_params.add_argument(
+    #     "-B", "--batchsize", type=int, default=10, help="local train batch size"
+    # ) -> batch
+    # bc_params.add_argument(
+    #     "-mn", "--model_name", type=str, default="mnist_cnn", help="the model to train"
+    # ) -> experiment
+    # bc_params.add_argument(
+    #     "-lr",
+    #     "--learning_rate",
+    #     type=float,
+    #     default=0.01,
+    #     help="learning rate, use value from origin paper as default",
+    # ) -> lr
+    # bc_params.add_argument(
+    #     "-op",
+    #     "--optimizer",
+    #     type=str,
+    #     default="SGD",
+    #     help="optimizer to be used, by default implementing stochastic gradient descent",
+    # ) -> optimizer
+    # bc_params.add_argument(
+    #     "-iid", "--IID", type=int, default=0, help="the way to allocate data to devices"
+    # ) -> bc_iid & bc_non_iid
+    bc_params.add_argument(
+        "-bc-max_ncomm",
+        "--bc-max_num_comm",
+        type=int,
+        default=100,
+        help="maximum number of communication rounds, may terminate early if converges",
+    )
+    bc_params.add_argument(
+        "-bc-nd",
+        "--bc-num_devices",
+        type=int,
+        default=20,
+        help="numer of the devices in the simulation network",
+    )
+    # bc_params.add_argument(
+    #     "-st",
+    #     "--shard_test_data",
+    #     type=int,
+    #     default=0,
+    #     help="it is easy to see the global models are consistent across devices when the test dataset is NOT sharded",
+    # )
+    bc_params.add_argument(
+        "-bc-nm",
+        "--bc-num_malicious",
+        type=int,
+        default=0,
+        help="number of malicious nodes in the network. malicious node's data sets will be introduced Gaussian noise",
+    )
+    bc_params.add_argument(
+        "-bc-nv",
+        "--bc-noise_variance",
+        type=int,
+        default=1,
+        help="noise variance level of the injected Gaussian Noise",
+    )
+    # bc_params.add_argument(
+    #     "-le",
+    #     "--default_local_epochs",
+    #     type=int,
+    #     default=5,
+    #     help="local train epoch. Train local model by this same num of epochs for each worker, if -mt is not specified",
+    # ) -> iters
+    # blockchain system consensus attributes
+    bc_params.add_argument(
+        "-bc-ur",
+        "--bc-unit_reward",
+        type=int,
+        default=1,
+        help="unit reward for providing data, verification of signature, validation and so forth",
+    )
+    bc_params.add_argument(
+        "-bc-ko",
+        "--bc-knock_out_rounds",
+        type=int,
+        default=6,
+        help="a worker or validator device is kicked out of the device's peer list(put in black list) if it's identified as malicious for this number of rounds",
+    )
+    bc_params.add_argument(
+        "-bc-lo",
+        "--bc-lazy_worker_knock_out_rounds",
+        type=int,
+        default=10,
+        help="a worker device is kicked out of the device's peer list(put in black list) if it does not provide updates for this number of rounds, due to too slow or just lazy to do updates and only accept the model udpates.(do not care lazy validator or miner as they will just not receive rewards)",
+    )
+    bc_params.add_argument(
+        "-bc-pow",
+        "--bc-pow_difficulty",
+        type=int,
+        default=0,
+        help="if set to 0, meaning miners are using PoS",
+    )
+
+    # blockchain FL validator/miner restriction tuning parameters
+    bc_params.add_argument(
+        "-bc-mt",
+        "--bc-miner_acception_wait_time",
+        type=float,
+        default=0.0,
+        help="default time window for miners to accept transactions, in seconds. 0 means no time limit, and each device will just perform same amount(-le) of epochs per round like in FedAvg paper",
+    )
+    bc_params.add_argument(
+        "-bc-ml",
+        "--bc-miner_accepted_transactions_size_limit",
+        type=float,
+        default=0.0,
+        help="no further transactions will be accepted by miner after this limit. 0 means no size limit. either this or -mt has to be specified, or both. This param determines the final block_size",
+    )
+    bc_params.add_argument(
+        "-bc-mp",
+        "--bc-miner_pos_propagated_block_wait_time",
+        type=float,
+        default=float("inf"),
+        help="this wait time is counted from the beginning of the comm round, used to simulate forking events in PoS",
+    )
+    bc_params.add_argument(
+        "-bc-vh",
+        "--bc-validator_threshold",
+        type=float,
+        default=1.0,
+        help="a threshold value of accuracy difference to determine malicious worker",
+    )
+    bc_params.add_argument(
+        "-bc-md",
+        "--bc-malicious_updates_discount",
+        type=float,
+        default=0.0,
+        help="do not entirely drop the voted negative worker transaction because that risks the same worker dropping the entire transactions and repeat its accuracy again and again and will be kicked out. Apply a discount factor instead to the false negative worker's updates are by some rate applied so it won't repeat",
+    )
+    bc_params.add_argument(
+        "-bc-mv",
+        "--bc-malicious_validator_on",
+        type=int,
+        default=0,
+        help="let malicious validator flip voting result",
+    )
+
+
+    # distributed system attributes
+    bc_params.add_argument(
+        "-bc-ns",
+        "--bc-network_stability",
+        type=float,
+        default=1.0,
+        help="the odds a device is online",
+    )
+    bc_params.add_argument(
+        "-bc-els",
+        "--bc-even_link_speed_strength",
+        type=int,
+        default=1,
+        help="This variable is used to simulate transmission delay. Default value 1 means every device is assigned to the same link speed strength -dts bytes/sec. If set to 0, link speed strength is randomly initiated between 0 and 1, meaning a device will transmit  -els*-dts bytes/sec - during experiment, one transaction is around 35k bytes.",
+    )
+    bc_params.add_argument(
+        "-bc-dts",
+        "--bc-base_data_transmission_speed",
+        type=float,
+        default=70000.0,
+        help="volume of data can be transmitted per second when -els == 1. set this variable to determine transmission speed (bandwidth), which further determines the transmission delay - during experiment, one transaction is around 35k bytes.",
+    )
+    bc_params.add_argument(
+        "-bc-ecp",
+        "--bc-even_computation_power",
+        type=int,
+        default=1,
+        help="This variable is used to simulate strength of hardware equipment. The calculation time will be shrunk down by this value. Default value 1 means evenly assign computation power to 1. If set to 0, power is randomly initiated as an int between 0 and 4, both included.",
+    )
+
+    # simulation attributes
+    bc_params.add_argument(
+        "-bc-ha",
+        "--bc-hard_assign",
+        type=str,
+        default="*,*,*",
+        help='hard assign number of roles in the network, order by worker, validator and miner. e.g. 12,5,3 assign 12 workers, 5 validators and 3 miners. "*,*,*" means completely random role-assigning in each communication round ',
+    )
+    bc_params.add_argument(
+        "-bc-aio",
+        "--bc-all_in_one",
+        type=int,
+        default=1,
+        help="let all nodes be aware of each other in the network while registering",
+    )
+    bc_params.add_argument(
+        "-bc-cs",
+        "--bc-check_signature",
+        type=int,
+        default=1,
+        help="if set to 0, all signatures are assumed to be verified to save execution time",
+    )
+    # bc_params.add_argument('-bc-la', '--bc-least_assign', type=str, default='*,*,*', help='the assigned number of roles are at least guaranteed in the network')
+    return parser
+
+##-------------------------------------------------------------------------------------------------------------------##

@@ -4,6 +4,7 @@ import numpy as np
 import time
 import torch
 from torch import optim
+from blockchain.simulate import simulate_bc
 from federated.sampling import sample_iid, sample_noniid, sample_noniid2
 from federated.train import train_fl, train_fl_threaded
 from federated.utils import fl_exp_details
@@ -464,6 +465,47 @@ def run(args, verbose=False):
 
     #-------------------------------------------------------------------------------------------------#
 
+    #------------------------------#
+    #----- BLOCKCHAIN -----#
+    #------------------------------#
+
+    # Is blockchain used?
+    if args.bc:
+        # Get BC simulation function
+        simulate_bc_fn = simulate_bc
+
+        # Callback functions to visualize accuracy after `args.fl_acc_log` global round
+        # bc_global_eval_cbs = [
+        #     fl_cb._fl_global_eval_cb(
+        #         log=args.fl_acc_log,
+        #         test_datasets=test_datasets,
+        #         test_size=args.fl_acc_n,
+        #         visdom=visdom,
+        #     )
+        # ]
+        bc_global_eval_cbs = []
+        # Callback functions to visualize accuracy for a certain client in a certain global round
+        # bc_eval_cbs = [
+        #     fl_cb._fl_eval_cb(
+        #         log=args.acc_log,
+        #         test_datasets=test_datasets,
+        #         test_size=args.acc_n,
+        #         visdom=visdom,
+        #         iters_per_context=args.iters,
+        #         single_context=args.fl_vis_single_context,
+        #     )
+        # ]
+        bc_eval_cbs = []
+        # Callback functions to visualize loss after `args.fl_loss_log` global rounds
+        # bc_global_loss_cbs = [
+        #     fl_cb._fl_global_loss_cb(
+        #         log=args.fl_loss_log,
+        #         visdom=visdom,
+        #     )
+        # ]
+        bc_global_loss_cbs = []
+
+    #-------------------------------------------------------------------------------------------------#
     #--------------------#
     #----- TRAINING -----#
     #--------------------#
@@ -512,6 +554,25 @@ def run(args, verbose=False):
                 gen_loss_cbs=generator_loss_cbs,
                 structure=args.structure,
                 watch_clients=args.fl_watch_clients,
+            )
+        elif args.bc:
+            simulate_bc_fn(
+                args=args,
+                model=model,
+                train_datasets=train_datasets,
+                test_datasets=test_datasets,
+                train_fn=train_fn,
+                baseline=baseline,
+                loss_cbs=loss_cbs,
+                eval_cbs=eval_cbs,
+                sample_cbs=sample_cbs,
+                context_cbs=context_cbs,
+                global_eval_cbs=bc_global_eval_cbs,
+                global_loss_cbs=bc_global_loss_cbs,
+                generator=generator,
+                gen_iters=g_iters,
+                gen_loss_cbs=generator_loss_cbs,
+                structure=args.structure,
             )
         else:
             train_fn(

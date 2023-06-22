@@ -1,23 +1,4 @@
-from torch.utils.data import Dataset
-
-
-class DatasetSplit(Dataset):
-    """An abstract Dataset class wrapped around Pytorch Dataset class.
-    """
-
-    def __init__(self, dataset, idxs):
-        self.dataset = dataset
-        self.idxs = [int(i) for i in idxs]
-        self.targets = [ self.dataset.targets[idx] for idx in self.idxs ]
-
-    def __len__(self):
-        return len(self.idxs)
-
-    def __getitem__(self, item):
-        return self.dataset[self.idxs[item]]
-
-    def get_unique_targets(self):
-        return list(set(self.targets))
+from federated.utils import DatasetSplit
 
 
 class LocalUpdate(object):
