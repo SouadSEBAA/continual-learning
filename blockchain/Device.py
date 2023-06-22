@@ -54,8 +54,8 @@ class Device:
         # deep learning variables
         self.train_dss = assigned_train_dss # array of datasets (because it's per context)
         self.test_dss = assigned_test_dss # same
-        self.train_dls = [ DataLoader(train_ds, batch_size=self.local_batch_size, shuffle=True) for train_ds in self.train_dss ]
         self.local_batch_size = local_batch_size
+        self.train_dls = [ DataLoader(train_ds, batch_size=self.local_batch_size, shuffle=True) for train_ds in self.train_dss ]
         self.network_stability = network_stability
         self.net = copy.deepcopy(net)
         self.dev = dev
