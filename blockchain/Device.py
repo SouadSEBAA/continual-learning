@@ -1098,6 +1098,7 @@ class Device:
                 generator=self.generator,
                 gen_iters=self.gen_iters,
                 structure=self.structure,
+                no_eval=True,
             )
             return (
                 time.time() - local_update_time
@@ -1800,6 +1801,7 @@ class Device:
                 generator=self.generator,
                 gen_iters=self.gen_iters,
                 structure=self.structure,
+                no_eval=True,
             )
             # validate by local test set
             precs = []

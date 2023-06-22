@@ -16,7 +16,7 @@ from utils import plot_contexts_infos
 
 def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
              loss_cbs=list(), eval_cbs=list(), sample_cbs=list(), context_cbs=list(),
-             generator=None, gen_iters=0, gen_loss_cbs=list(), **kwargs):
+             generator=None, gen_iters=0, gen_loss_cbs=list(), no_eval=False, **kwargs):
     '''Train a model (with a "train_a_batch" method) on multiple contexts.
 
     [model]               <nn.Module> main model to optimize across all contexts
@@ -444,36 +444,37 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
                         )
                         previous_datasets = [MemorySetDataset(model.memory_sets, target_transform=target_transform)]
     
-    # Average all contexts results 
-    classes_count = {i:0 for i in range(NUM_CLASSES)}
-    for i in range(len(train_datasets)):
-        for c in range(NUM_CLASSES):
-            classes_count[c] += 1 if c in train_datasets[i].get_unique_targets() else 0
+    if not no_eval:
+        # Average all contexts results 
+        classes_count = {i:0 for i in range(NUM_CLASSES)}
+        for i in range(len(train_datasets)):
+            for c in range(NUM_CLASSES):
+                classes_count[c] += 1 if c in train_datasets[i].get_unique_targets() else 0
 
-    for c in cxts_results["recall_per_class"]:
-        cxts_results["recall_per_class"][c] = cxts_results["recall_per_class"][c] / classes_count[c]
+        for c in cxts_results["recall_per_class"]:
+            cxts_results["recall_per_class"][c] = cxts_results["recall_per_class"][c] / classes_count[c]
 
-    for k in cxts_results["avg_performance"]:
-        cxts_results["avg_performance"][k] = cxts_results["avg_performance"][k] / len(train_datasets)
+        for k in cxts_results["avg_performance"]:
+            cxts_results["avg_performance"][k] = cxts_results["avg_performance"][k] / len(train_datasets)
 
-    print('\n\n' + ' SUMMARY OF EVALATION OVER CONTEXTS'.center(70, '*'))
-    print("Per class perfomance:")
-    tbl = PrettyTable()
-    tbl.field_names = [''] + list(classes_count.keys())
-    tbl.add_row(['recall'] + [round(cxts_results["recall_per_class"][i], 4) for i in range(NUM_CLASSES)])
-    print(tbl)
-    print("Average perfomance:")
-    tbl = PrettyTable()
-    tbl.field_names = cxts_results["avg_performance"].keys()
-    tbl.add_row([round(cxts_results["avg_performance"][metric], 4) for metric in tbl.field_names])
-    print(tbl)
+        print('\n\n' + ' SUMMARY OF EVALATION OVER CONTEXTS'.center(70, '*'))
+        print("Per class perfomance:")
+        tbl = PrettyTable()
+        tbl.field_names = [''] + list(classes_count.keys())
+        tbl.add_row(['recall'] + [round(cxts_results["recall_per_class"][i], 4) for i in range(NUM_CLASSES)])
+        print(tbl)
+        print("Average perfomance:")
+        tbl = PrettyTable()
+        tbl.field_names = cxts_results["avg_performance"].keys()
+        tbl.add_row([round(cxts_results["avg_performance"][metric], 4) for metric in tbl.field_names])
+        print(tbl)
 
-    plot_contexts_infos(
-        f"./store/plots/plot-contexts-acc-scenario{kwargs['structure']}", 
-        cxts_results['contexts_acc'], 
-        cxts_results['contexts_rec'], 
-        cxts_results['binary FPR'],
-    )
+        plot_contexts_infos(
+            f"./store/plots/plot-contexts-acc-scenario{kwargs['structure']}", 
+            cxts_results['contexts_acc'], 
+            cxts_results['contexts_rec'], 
+            cxts_results['binary FPR'],
+        )
 
     return loss_dict
 
