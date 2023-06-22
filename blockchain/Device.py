@@ -1092,18 +1092,18 @@ class Device:
         else:
             validation_net = copy.deepcopy(self.net)
             local_update_time = time.time()
-            self.train_fn(
-                validation_net,
-                self.train_dss,
-                iters=1,
-                batch_size=self.local_batch_size,
-                baseline=self.baseline,
-                generator=self.generator,
-                gen_iters=self.gen_iters,
-                structure=self.structure,
-                no_eval=True,
-                device=self.dev,
-            )
+            # self.train_fn(
+            #     validation_net,
+            #     self.train_dss,
+            #     iters=1,
+            #     batch_size=self.local_batch_size,
+            #     baseline=self.baseline,
+            #     generator=self.generator,
+            #     gen_iters=self.gen_iters,
+            #     structure=self.structure,
+            #     no_eval=True,
+            #     device=self.dev,
+            # )
             return (
                 time.time() - local_update_time
             ) / self.computation_power, validation_net.state_dict()
@@ -1796,18 +1796,18 @@ class Device:
         else:
             updated_net = copy.deepcopy(self.net)
             local_validation_time = time.time()
-            self.train_fn(
-                updated_net,
-                self.train_dss,
-                iters=1,
-                batch_size=self.local_batch_size,
-                baseline=self.baseline,
-                generator=self.generator,
-                gen_iters=self.gen_iters,
-                structure=self.structure,
-                no_eval=True,
-                device=self.dev,
-            )
+            # self.train_fn(
+            #     updated_net,
+            #     self.train_dss,
+            #     iters=1,
+            #     batch_size=self.local_batch_size,
+            #     baseline=self.baseline,
+            #     generator=self.generator,
+            #     gen_iters=self.gen_iters,
+            #     structure=self.structure,
+            #     no_eval=True,
+            #     device=self.dev,
+            # )
             # validate by local test set
             precs = []
             for i, test_ds in enumerate(self.test_dss):
