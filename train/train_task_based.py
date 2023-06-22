@@ -328,6 +328,7 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
             if batch_index <= iters:
 
                 # Train the main model with this batch
+                print(f"\n\n---------------------- y_: {y_} ----------------------\n\n")
                 loss_dict = model.train_a_batch(x, y, x_=x_, y_=y_, scores=scores, scores_=scores_, rnt = 1./context,
                                                 contexts_=context_used, active_classes=active_classes, context=context)
 
