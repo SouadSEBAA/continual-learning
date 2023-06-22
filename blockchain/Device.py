@@ -2086,9 +2086,9 @@ class DevicesInNetwork(object):
         user_groups_train = self.sample_fn(
             self.train_datasets,
             self.num_devices,
-            self.num_shards,
-            self.minval,
-            self.maxval,
+            num_shards=self.num_shards,
+            minval=self.minval,
+            maxval=self.maxval,
         )
         # sample test dataset in IID fashion
         user_groups_test = sample_iid(
