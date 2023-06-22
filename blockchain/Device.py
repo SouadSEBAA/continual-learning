@@ -1083,7 +1083,7 @@ class Device:
         return self.local_update_time
 
     # used to simulate time waste when worker goes offline during transmission to validator
-    def waste_one_epoch_local_update_time(self, opti):
+    def waste_one_epoch_local_update_time(self):
         if self.computation_power == 0:
             return float("inf"), None
         else:
@@ -1779,7 +1779,7 @@ class Device:
     def return_final_transactions_validating_queue(self):
         return self.final_transactions_queue_to_validate
 
-    def validator_update_model_by_one_epoch_and_validate_local_accuracy(self, opti):
+    def validator_update_model_by_one_epoch_and_validate_local_accuracy(self):
         # return time spent
         print(
             f"validator {self.idx} is performing one epoch of local update and validation"

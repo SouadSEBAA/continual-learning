@@ -584,7 +584,6 @@ def simulate_bc(args, model, train_datasets, test_datasets, train_fn, baseline, 
                                     wasted_update_time,
                                     wasted_update_params,
                                 ) = worker.waste_one_epoch_local_update_time(
-                                    args["optimizer"]
                                 )
                                 wasted_update_params_size = getsizeof(
                                     str(wasted_update_params)
@@ -751,7 +750,6 @@ def simulate_bc(args, model, train_datasets, test_datasets, train_fn, baseline, 
             if final_transactions_arrival_queue:
                 # validator asynchronously does one epoch of update and validate on its own test set
                 local_validation_time = validator.validator_update_model_by_one_epoch_and_validate_local_accuracy(
-                    args["optimizer"]
                 )
                 print(
                     f"{validator.return_idx()} - validator {validator_iter+1}/{len(validators_this_round)} is validating received worker transactions..."
