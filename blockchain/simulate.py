@@ -632,7 +632,7 @@ def simulate_bc(args, model, train_datasets, test_datasets, train_fn, baseline, 
                                 rewards,
                                 log_files_folder_path_comm_round,
                                 comm_round,
-                                local_epochs=args["bc_default_local_epochs"],
+                                local_epochs=args["iters"],
                             )
                             worker_link_speed = worker.return_link_speed()
                             lower_link_speed = (
