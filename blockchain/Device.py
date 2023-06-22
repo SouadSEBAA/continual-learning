@@ -49,6 +49,7 @@ class Device:
         generator,
         gen_iters,
         gen_loss_cbs,
+        structure,
     ):
         self.idx = idx
         # deep learning variables
@@ -166,6 +167,7 @@ class Device:
         self.generator = generator
         self.gen_iters = gen_iters
         self.gen_loss_cbs = gen_loss_cbs
+        self.structure = structure
 
     """ Common Methods """
 
@@ -2144,6 +2146,7 @@ class DevicesInNetwork(object):
                 generator=self.generator,
                 gen_iters=self.gen_iters,
                 gen_loss_cbs=self.gen_loss_cbs,
+                structure=self.structure,
             )
             # device index starts from 1
             self.devices_set[device_idx] = a_device
