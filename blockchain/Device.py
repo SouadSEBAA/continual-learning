@@ -2105,11 +2105,11 @@ class DevicesInNetwork(object):
 
             # assign datasets
             assigned_train_dss = [
-                DatasetSplit(train_dataset, user_groups_train[idx])
+                DatasetSplit(train_dataset, user_groups_train[i][idx])
                 for idx, train_dataset in enumerate(self.train_datasets)
             ]
             assigned_test_dss = [
-                DatasetSplit(test_dataset, user_groups_test[idx])
+                DatasetSplit(test_dataset, user_groups_test[i][idx])
                 for idx, test_dataset in enumerate(self.test_datasets)
             ]
 
