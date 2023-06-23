@@ -193,7 +193,7 @@ def simulate_bc(args, model, train_datasets, test_datasets, train_fn, baseline, 
 
         # 7. assign GPU(s) if available to the net, otherwise CPU
         # os.environ['CUDA_VISIBLE_DEVICES'] = args['bc_gpu']
-        if torch.cuda.device_count() > 1:
+        if not args["bc_cpu"] and torch.cuda.device_count() > 1:
             net = torch.nn.DataParallel(net)
         # print(f"{torch.cuda.device_count()} GPUs are available to use!")
         device_count = 0 if args['bc_cpu'] else torch.cuda.device_count()
