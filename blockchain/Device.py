@@ -20,8 +20,8 @@ class Device:
     def __init__(
         self,
         idx,
-        assigned_train_dss,
-        assigned_test_dss,
+        train_idxs,
+        test_idxs,
         local_batch_size,
         network_stability,
         net,
@@ -53,8 +53,9 @@ class Device:
     ):
         self.idx = idx
         # deep learning variables
-        self.train_dss = assigned_train_dss # array of datasets (because it's per context)
-        self.test_dss = assigned_test_dss # same
+        self.train_idxs = train_idxs
+        self.test_idxs = test_idxs
+        self.set_datasets()
         self.local_batch_size = local_batch_size
         # self.train_dls = [ DataLoader(train_ds, batch_size=self.local_batch_size, shuffle=True) for train_ds in self.train_dss ]
         self.network_stability = network_stability
@@ -172,6 +173,17 @@ class Device:
     """ Common Methods """
 
     """ setters """
+
+    def set_datasets(self):
+        # assign datasets
+        self.train_dss = [
+            DatasetSplit(train_dataset, self.train_idxs[i])
+            for i, train_dataset in enumerate(self.train_datasets)
+        ]
+        self.test_dss = [
+            DatasetSplit(test_dataset, self.test_idxs[i])
+            for i, test_dataset in enumerate(self.test_datasets)
+        ]
 
     def set_devices_dict_and_aio(self, devices_dict, aio):
         self.devices_dict = devices_dict
@@ -1146,6 +1158,7 @@ class Device:
         self.local_total_epoch = 0
         self.variance_of_noises.clear()
         self.round_end_time = 0
+        self.set_datasets()
 
     def receive_block_from_miner(self, received_block, source_miner):
         if not (
@@ -1469,6 +1482,7 @@ class Device:
         # 		self.block_to_add = None
         self.unordered_propagated_block_processing_queue.clear()
         self.round_end_time = 0
+        self.set_datasets()
 
     def set_unordered_arrival_time_accepted_validator_transactions(
         self, unordered_arrival_time_accepted_validator_transactions
@@ -1565,6 +1579,7 @@ class Device:
         self.validator_accepted_broadcasted_worker_transactions.clear()
         self.post_validation_transactions_queue.clear()
         self.round_end_time = 0
+        self.set_datasets()
 
     def add_post_validation_transaction_to_queue(self, transaction_to_add):
         self.post_validation_transactions_queue.append(transaction_to_add)
@@ -2112,20 +2127,22 @@ class DevicesInNetwork(object):
             # assign data to a device and put in the devices set
             device_idx = f"device_{i+1}"
 
-            # assign datasets
-            assigned_train_dss = [
-                DatasetSplit(train_dataset, user_groups_train[i][idx])
-                for idx, train_dataset in enumerate(self.train_datasets)
-            ]
-            assigned_test_dss = [
-                DatasetSplit(test_dataset, user_groups_test[i][idx])
-                for idx, test_dataset in enumerate(self.test_datasets)
-            ]
+            # # assign datasets
+            # assigned_train_dss = [
+            #     DatasetSplit(train_dataset, user_groups_train[i][idx])
+            #     for idx, train_dataset in enumerate(self.train_datasets)
+            # ]
+            # assigned_test_dss = [
+            #     DatasetSplit(test_dataset, user_groups_test[i][idx])
+            #     for idx, test_dataset in enumerate(self.test_datasets)
+            # ]
 
             a_device = Device(
                 idx=device_idx,
-                assigned_train_dss=assigned_train_dss,
-                assigned_test_dss=assigned_test_dss,
+                # assigned_train_dss=assigned_train_dss,
+                # assigned_test_dss=assigned_test_dss,
+                train_idxs=user_groups_train[i],
+                test_idxs=user_groups_test[i],
                 local_batch_size=self.batch_size,
                 network_stability=self.default_network_stability,
                 net=self.net,
