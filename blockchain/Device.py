@@ -179,6 +179,7 @@ class Device:
     """ setters """
 
     def set_datasets(self):
+        print(f"-----------------------------(Re)setting datasets-----------------------------")
         # assign datasets
         self.train_dss = [
             DatasetSplit(train_dataset, self.train_idxs[i])
