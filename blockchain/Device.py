@@ -22,6 +22,8 @@ class Device:
         idx,
         train_idxs,
         test_idxs,
+        train_datasets,
+        test_datasets,
         local_batch_size,
         network_stability,
         net,
@@ -55,6 +57,8 @@ class Device:
         # deep learning variables
         self.train_idxs = train_idxs
         self.test_idxs = test_idxs
+        self.train_datasets = train_datasets
+        self.test_datasets = test_datasets
         self.set_datasets()
         self.local_batch_size = local_batch_size
         # self.train_dls = [ DataLoader(train_ds, batch_size=self.local_batch_size, shuffle=True) for train_ds in self.train_dss ]
@@ -2143,6 +2147,8 @@ class DevicesInNetwork(object):
                 # assigned_test_dss=assigned_test_dss,
                 train_idxs=user_groups_train[i],
                 test_idxs=user_groups_test[i],
+                train_datasets=self.train_datasets,
+                test_datasets=self.test_datasets,
                 local_batch_size=self.batch_size,
                 network_stability=self.default_network_stability,
                 net=self.net,
