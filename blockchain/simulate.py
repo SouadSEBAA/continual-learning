@@ -200,6 +200,9 @@ def simulate_bc(args, model, train_datasets, test_datasets, train_fn, baseline, 
         print(f"{device_count} GPUs are available to use!")
         net = net.to(dev)
 
+        # Set model in training mode
+        net.train()
+
         # 8. set sampling function
         if args["bc_non_iid"]:
             sample_fn = sample_noniid2
@@ -251,7 +254,7 @@ def simulate_bc(args, model, train_datasets, test_datasets, train_fn, baseline, 
             structure=structure, # arg
             **kwargs, # arg
         )
-        del net
+        # del net
         devices_list = list(devices_in_network.devices_set.values())
 
         # 10. register devices and initialize global parameterms
@@ -304,6 +307,9 @@ def simulate_bc(args, model, train_datasets, test_datasets, train_fn, baseline, 
 
     # VBFL starts here
     for comm_round in range(latest_round_num + 1, args["bc_max_num_comm"] + 1):
+        # set global model in training mode
+        net.train()
+
         # create round specific log folder
         log_files_folder_path_comm_round = f"{log_files_folder_path}/comm_{comm_round}"
         if os.path.exists(log_files_folder_path_comm_round):
