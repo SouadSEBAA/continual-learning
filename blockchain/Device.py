@@ -262,6 +262,9 @@ class Device:
     def return_round_end_time(self):
         return self.round_end_time
 
+    def return_global_parameters(self):
+        return self.global_parameters
+
     """ functions """
 
     def sign_msg(self, msg):
@@ -1040,7 +1043,9 @@ class Device:
         print(
             f"Worker {self.idx} is doing local_update with computation power {self.computation_power} and link speed {round(self.link_speed,3)} bytes/s"
         )
-        self.net.load_state_dict(self.global_parameters, strict=True)
+        net_to_use = copy.deepcopy(self.net)
+
+        net_to_use.load_state_dict(self.global_parameters, strict=True)
         # logging maliciousness
         is_malicious_node = "M" if self.return_is_malicious() else "B"
         self.local_updates_rewards_per_transaction = 0
@@ -1049,7 +1054,7 @@ class Device:
         # local worker update by specified epochs
         # usually, if validator acception time is specified, local_epochs should be 1
         self.train_fn(
-            self.net,
+            net_to_use,
             self.train_dss,
             iters=local_epochs,
             batch_size=self.local_batch_size,
@@ -1079,7 +1084,7 @@ class Device:
         except:
             self.local_update_time = float("inf")
         if self.is_malicious:
-            self.net.apply(self.malicious_worker_add_noise_to_weights)
+            net_to_use.apply(self.malicious_worker_add_noise_to_weights)
             print(
                 f"malicious worker {self.idx} has added noise to its local updated weights before transmitting"
             )
@@ -1090,6 +1095,7 @@ class Device:
                 file.write(
                     f"{self.return_idx()} {self.return_role()} {is_malicious_node} noise variances: {self.variance_of_noises}\n"
                 )
+        self.net.load_state_dict(net_to_use.state_dict())
         # record accuracies to find good -vh
         with open(
             f"{log_files_folder_path_comm_round}/worker_final_local_accuracies_comm_{comm_round}.txt",
