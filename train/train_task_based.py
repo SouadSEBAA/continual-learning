@@ -35,9 +35,9 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
     # Use cuda?
     cuda = model._is_on_cuda()
     print(f"---------------------- CUDA: {cuda} -------------------")
-    # if device is not None:
-    #     device = model._device()
-    device = model._device()
+    if device is not None:
+        device = model._device()
+    # device = model._device()
 
     # Initiate possible sources for replay (no replay for 1st context)
     ReplayStoredData = ReplayGeneratedData = ReplayCurrentData = False
