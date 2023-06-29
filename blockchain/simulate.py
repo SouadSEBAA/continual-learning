@@ -35,7 +35,7 @@ from blockchain.Device import DevicesInNetwork
 from blockchain.Block import Block
 from federated.sampling import sample_iid, sample_noniid2
 
-def simulate_bc(args, model, train_datasets, test_datasets, train_fn, baseline, loss_cbs, eval_cbs, sample_cbs, context_cbs, global_eval_cbs, global_loss_cbs, generator, gen_iters, gen_loss_cbs, structure, **kwargs):
+def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, baseline, loss_cbs, eval_cbs, sample_cbs, context_cbs, global_eval_cbs, global_loss_cbs, generator, gen_iters, gen_loss_cbs, structure, **kwargs):
     # set program execution time for logging purpose
     date_time = datetime.now().strftime("%m%d%Y_%H%M%S")
     log_files_folder_path = f"blockchain/logs/{date_time}"
@@ -50,13 +50,13 @@ def simulate_bc(args, model, train_datasets, test_datasets, train_fn, baseline, 
 
     args = args.__dict__
 
-    # Force usage of CPU if argument is set
-    if args['bc_cpu']:
-        print("Using CPU!!!")
-        dev = torch.device("cpu")
-    else:
-        # detect CUDA
-        dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    # # Force usage of CPU if argument is set
+    # if args['bc_cpu']:
+    #     print("Using CPU!!!")
+    #     dev = torch.device("cpu")
+    # else:
+    #     # detect CUDA
+    #     dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     # pre-define system variables
     latest_round_num = 0

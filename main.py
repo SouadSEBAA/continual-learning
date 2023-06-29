@@ -559,6 +559,7 @@ def run(args, verbose=False):
         elif args.bc:
             simulate_bc_fn(
                 args=args,
+                device=device,
                 model=model,
                 train_datasets=train_datasets,
                 test_datasets=test_datasets,
