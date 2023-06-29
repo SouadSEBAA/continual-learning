@@ -1345,7 +1345,7 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                     "slowest_device_round_ends_time: No valid block has been generated this round.\n"
                 )
                 with open(
-                    f"{log_files_folder_path}/forking_and_no_valid_block_log.txt", "a"
+                    f"{log_files_folder_path}/forking_and_no_valid_block_log.txt", "r+"
                 ) as file2:
                     no_valid_block_msg = f"No valid block in round {comm_round}\n"
                     if file2.readlines()[-1] != no_valid_block_msg:
