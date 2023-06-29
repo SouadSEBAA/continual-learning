@@ -1429,4 +1429,4 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
             pickle.dump(devices_in_network, open(snapshot_file_path, "wb"))
 
         # set global model
-        net.load_state_dict(associated_workers[0].return_global_parameters())
+        net.load_state_dict(devices_list[0].return_global_parameters())
