@@ -9,6 +9,8 @@ store/plots
 store/datasets
 store/results
 
+log
+
 venv
 
 .vscode
