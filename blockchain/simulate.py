@@ -50,13 +50,13 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
 
     args = args.__dict__
 
-    # # Force usage of CPU if argument is set
-    # if args['bc_cpu']:
-    #     print("Using CPU!!!")
-    #     dev = torch.device("cpu")
-    # else:
-    #     # detect CUDA
-    #     dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    # Force usage of CPU if argument is set
+    if args['bc_cpu']:
+        print("Using CPU!!!")
+        dev = torch.device("cpu")
+    else:
+        # detect CUDA
+        dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     # pre-define system variables
     latest_round_num = 0
