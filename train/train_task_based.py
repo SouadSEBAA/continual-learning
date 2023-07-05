@@ -38,6 +38,8 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
     # if device is not None:
     #     device = model._device()
     device = model._device()
+    # force cuda usage?
+    model.cuda()
 
     # Initiate possible sources for replay (no replay for 1st context)
     ReplayStoredData = ReplayGeneratedData = ReplayCurrentData = False
@@ -501,8 +503,6 @@ def train_fromp(model, train_datasets, iters=2000, batch_size=32,
     # Use cuda?
     cuda = model._is_on_cuda()
     device = model._device()
-    # force cuda usage?
-    model.cuda()
 
     # Are there different active classes per context (or just potentially a different mask per context)?
     per_context = (model.scenario=="task" or (model.scenario=="class" and model.neg_samples=="current"))
