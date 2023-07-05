@@ -501,6 +501,8 @@ def train_fromp(model, train_datasets, iters=2000, batch_size=32,
     # Use cuda?
     cuda = model._is_on_cuda()
     device = model._device()
+    # force cuda usage?
+    model.cuda()
 
     # Are there different active classes per context (or just potentially a different mask per context)?
     per_context = (model.scenario=="task" or (model.scenario=="class" and model.neg_samples=="current"))
