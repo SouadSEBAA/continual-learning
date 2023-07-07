@@ -1049,7 +1049,8 @@ class Device:
         # logging maliciousness
         is_malicious_node = "M" if self.return_is_malicious() else "B"
         self.local_updates_rewards_per_transaction = 0
-        eval_cbs = self.eval_cbs + [ log_callback(is_malicious_node) ]
+        # eval_cbs = self.eval_cbs + [ log_callback(is_malicious_node) ]
+        eval_cbs = self.eval_cbs
         self.local_update_time = time.time()
         # local worker update by specified epochs
         # usually, if validator acception time is specified, local_epochs should be 1
