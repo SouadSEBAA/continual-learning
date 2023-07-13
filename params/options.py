@@ -631,6 +631,14 @@ def add_bc_options(parser, **kwargs):
         default=1,
         help="if set to 0, all signatures are assumed to be verified to save execution time",
     )
+    bc_params.add_argument(
+        "-bc-cons",
+        "--bc-consensus",
+        type=str,
+        default='poa',
+        help="defines the consensus mechanism to use, -pow take effect only if this option is set to 'pow'",
+    )
+
     # bc_params.add_argument('-bc-la', '--bc-least_assign', type=str, default='*,*,*', help='the assigned number of roles are at least guaranteed in the network')
     return parser
 

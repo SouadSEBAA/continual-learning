@@ -17,6 +17,8 @@ class Block:
 		# the hash of the current block, calculated by compute_hash
 		self._pow_proof = pow_proof
 		self._signature = signature
+		# for PoA
+		self._global_parameters = None
 
 	# compute_hash() also used to return value for block verification
 	# if False by default, used for pow and verification, in which pow_proof has to be None, because at this moment -
@@ -88,6 +90,17 @@ class Block:
 	
 	def return_transactions(self):
 		return self._transactions
+
+	# for PoA
+	def set_delegates_signatures(self, signatures):
+		# signed by mined_by node
+		self._delegates_signatures = signatures
+
+	def set_global_parameters(self, global_params):
+		self._global_parameters = global_params
+
+	def return_global_parameters(self):
+		return self._global_parameters
 
 	# a temporary workaround to free GPU mem by delete txs stored in the blocks. Not good when need to resync chain
 	def free_tx(self):
