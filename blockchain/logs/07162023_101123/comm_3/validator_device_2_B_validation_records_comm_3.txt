@@ -1,0 +1,12 @@
+-0.1965275010910224: validator device_2 B in round 3 evluating worker device_5, diff = w_acc:0.3991479456844013 - v_acc:0.5956754467754237, device_5_maliciousness: B
+-0.2022944564106296: validator device_2 B in round 3 evluating worker device_14, diff = w_acc:0.3933809903647941 - v_acc:0.5956754467754237, device_14_maliciousness: B
+-0.21480446205678927: validator device_2 B in round 3 evluating worker device_3, diff = w_acc:0.38087098471863445 - v_acc:0.5956754467754237, device_3_maliciousness: B
+-0.21440871476009515: validator device_2 B in round 3 evluating worker device_12, diff = w_acc:0.38126673201532857 - v_acc:0.5956754467754237, device_12_maliciousness: B
+-0.19593082843754783: validator device_2 B in round 3 evluating worker device_17, diff = w_acc:0.3997446183378759 - v_acc:0.5956754467754237, device_17_maliciousness: B
+-0.17493911077380453: validator device_2 B in round 3 evluating worker device_6, diff = w_acc:0.4207363360016192 - v_acc:0.5956754467754237, device_6_maliciousness: B
+-0.26798711458074764: validator device_2 B in round 3 evluating worker device_11, diff = w_acc:0.3276883321946761 - v_acc:0.5956754467754237, device_11_maliciousness: B
+-0.19587973982027046: validator device_2 B in round 3 evluating worker device_9, diff = w_acc:0.39979570695515326 - v_acc:0.5956754467754237, device_9_maliciousness: B
+-0.22315329714781668: validator device_2 B in round 3 evluating worker device_15, diff = w_acc:0.37252214962760705 - v_acc:0.5956754467754237, device_15_maliciousness: B
+-0.21447889614333704: validator device_2 B in round 3 evluating worker device_4, diff = w_acc:0.3811965506320867 - v_acc:0.5956754467754237, device_4_maliciousness: B
+-0.23207454238746228: validator device_2 B in round 3 evluating worker device_1, diff = w_acc:0.36360090438796144 - v_acc:0.5956754467754237, device_1_maliciousness: B
+-0.24945884065584856: validator device_2 B in round 3 evluating worker device_13, diff = w_acc:0.34621660611957517 - v_acc:0.5956754467754237, device_13_maliciousness: B

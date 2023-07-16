@@ -1,0 +1,12 @@
+0.01194026043503682: validator device_10 B in round 40 evluating worker device_16, diff = w_acc:0.8899377117367577 - v_acc:0.8779974513017209, device_16_maliciousness: B
+0.016265202834107484: validator device_10 B in round 40 evluating worker device_14, diff = w_acc:0.8942626541358284 - v_acc:0.8779974513017209, device_14_maliciousness: B
+0.013408806898662418: validator device_10 B in round 40 evluating worker device_3, diff = w_acc:0.8914062582003833 - v_acc:0.8779974513017209, device_3_maliciousness: B
+0.01018497381759531: validator device_10 B in round 40 evluating worker device_6, diff = w_acc:0.8881824251193162 - v_acc:0.8779974513017209, device_6_maliciousness: B
+0.015136672617117375: validator device_10 B in round 40 evluating worker device_11, diff = w_acc:0.8931341239188383 - v_acc:0.8779974513017209, device_11_maliciousness: B
+0.008513442949474759: validator device_10 B in round 40 evluating worker device_17, diff = w_acc:0.8865108942511957 - v_acc:0.8779974513017209, device_17_maliciousness: B
+0.018047359791495077: validator device_10 B in round 40 evluating worker device_9, diff = w_acc:0.896044811093216 - v_acc:0.8779974513017209, device_9_maliciousness: B
+0.00965019530218858: validator device_10 B in round 40 evluating worker device_5, diff = w_acc:0.8876476466039095 - v_acc:0.8779974513017209, device_5_maliciousness: B
+0.013031401349271055: validator device_10 B in round 40 evluating worker device_7, diff = w_acc:0.891028852650992 - v_acc:0.8779974513017209, device_7_maliciousness: B
+0.008873716006988608: validator device_10 B in round 40 evluating worker device_1, diff = w_acc:0.8868711673087095 - v_acc:0.8779974513017209, device_1_maliciousness: B
+0.011704998339317929: validator device_10 B in round 40 evluating worker device_8, diff = w_acc:0.8897024496410388 - v_acc:0.8779974513017209, device_8_maliciousness: B
+0.01113815301996579: validator device_10 B in round 40 evluating worker device_12, diff = w_acc:0.8891356043216867 - v_acc:0.8779974513017209, device_12_maliciousness: B

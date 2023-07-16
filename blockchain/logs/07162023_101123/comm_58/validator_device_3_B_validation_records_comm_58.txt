@@ -1,0 +1,12 @@
+0.024151633319304477: validator device_3 B in round 58 evluating worker device_1, diff = w_acc:0.9012056463813192 - v_acc:0.8770540130620147, device_1_maliciousness: B
+0.01938736961749532: validator device_3 B in round 58 evluating worker device_17, diff = w_acc:0.89644138267951 - v_acc:0.8770540130620147, device_17_maliciousness: B
+0.019361635410798383: validator device_3 B in round 58 evluating worker device_9, diff = w_acc:0.8964156484728131 - v_acc:0.8770540130620147, device_9_maliciousness: B
+0.021472948397640024: validator device_3 B in round 58 evluating worker device_16, diff = w_acc:0.8985269614596547 - v_acc:0.8770540130620147, device_16_maliciousness: B
+0.025239601333385653: validator device_3 B in round 58 evluating worker device_14, diff = w_acc:0.9022936143954003 - v_acc:0.8770540130620147, device_14_maliciousness: B
+0.029139691651507538: validator device_3 B in round 58 evluating worker device_13, diff = w_acc:0.9061937047135222 - v_acc:0.8770540130620147, device_13_maliciousness: B
+0.023984121965389904: validator device_3 B in round 58 evluating worker device_15, diff = w_acc:0.9010381350274046 - v_acc:0.8770540130620147, device_15_maliciousness: B
+0.027349351867027583: validator device_3 B in round 58 evluating worker device_6, diff = w_acc:0.9044033649290423 - v_acc:0.8770540130620147, device_6_maliciousness: B
+0.02644017225972517: validator device_3 B in round 58 evluating worker device_4, diff = w_acc:0.9034941853217399 - v_acc:0.8770540130620147, device_4_maliciousness: B
+0.025784099076380462: validator device_3 B in round 58 evluating worker device_5, diff = w_acc:0.9028381121383952 - v_acc:0.8770540130620147, device_5_maliciousness: B
+0.021989568145981297: validator device_3 B in round 58 evluating worker device_10, diff = w_acc:0.899043581207996 - v_acc:0.8770540130620147, device_10_maliciousness: B
+0.027777123822596672: validator device_3 B in round 58 evluating worker device_7, diff = w_acc:0.9048311368846114 - v_acc:0.8770540130620147, device_7_maliciousness: B
