@@ -1,0 +1,19 @@
+device_10 worker B: 0.4844189520942282
+device_9 validator B: 0.4846942402217396
+device_1 worker B: 0.4856918356018419
+device_11 worker B: 0.48650304253339133
+device_8 worker B: 0.4845470642447993
+device_7 worker B: 0.4802841697889331
+device_4 validator B: 0.49272553634433014
+device_13 worker M: 0.4846166139302198
+device_5 worker B: 0.4803932883319192
+device_6 worker B: 0.4854298815155881
+device_2 validator B: 0.47517611442841223
+device_12 worker B: 0.48796311497409545
+device_3 worker B: 0.4981280332259133
+comm_round_block_gen_time: 32.82438279893057
+slowest_device_round_ends_time: 34.1491430165972
+mining_consensus: PoA 0
+forking_happened: False
+comm_round_spent_time_on_this_machine: 362.41506838798523
+block_mined_by: device_2 B
