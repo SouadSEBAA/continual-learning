@@ -1,0 +1,12 @@
+0.5653110851217888 = current_validator_accuracy 0.6245986218764388 - accuracy_by_worker_update_using_own_data 0.05928753675464989 , by validator device_5 on worker device_12 in round 1
+0.5582391760176989 = current_validator_accuracy 0.6245986218764388 - accuracy_by_worker_update_using_own_data 0.06635944585873989 , by validator device_5 on worker device_2 in round 1
+0.5635639307160578 = current_validator_accuracy 0.6237441296889388 - accuracy_by_worker_update_using_own_data 0.060180198972881 , by validator device_10 on worker device_12 in round 1
+0.5622581477240263 = current_validator_accuracy 0.6237441296889388 - accuracy_by_worker_update_using_own_data 0.06148598196491254 , by validator device_10 on worker device_2 in round 1
+0.5649404803443883 = current_validator_accuracy 0.6226454968764388 - accuracy_by_worker_update_using_own_data 0.05770501653205046 , by validator device_4 on worker device_12 in round 1
+0.5551570279982085 = current_validator_accuracy 0.6226454968764388 - accuracy_by_worker_update_using_own_data 0.0674884688782302 , by validator device_4 on worker device_2 in round 1
+0.3571007634457779 = current_validator_accuracy 0.5461374147391327 - accuracy_by_worker_update_using_own_data 0.1890366512933548 , by validator device_1 on worker device_12 in round 2
+0.5064579211940738 = current_validator_accuracy 0.5461374147391327 - accuracy_by_worker_update_using_own_data 0.03967949354505888 , by validator device_1 on worker device_2 in round 2
+0.5188706308324406 = current_validator_accuracy 0.553408627145914 - accuracy_by_worker_update_using_own_data 0.03453799631347342 , by validator device_3 on worker device_2 in round 2
+0.37246881442347834 = current_validator_accuracy 0.553408627145914 - accuracy_by_worker_update_using_own_data 0.18093981272243564 , by validator device_3 on worker device_12 in round 2
+0.36544504731148936 = current_validator_accuracy 0.5465571475096667 - accuracy_by_worker_update_using_own_data 0.1811121001981773 , by validator device_6 on worker device_12 in round 2
+0.5064908483559789 = current_validator_accuracy 0.5465571475096667 - accuracy_by_worker_update_using_own_data 0.04006629915368773 , by validator device_6 on worker device_2 in round 2
