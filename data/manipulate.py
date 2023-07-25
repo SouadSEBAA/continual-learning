@@ -75,8 +75,7 @@ class SubDataset(Dataset):
             sample = (sample[0], target)
         if self.flip_labels:
             x, y = sample
-            y = self.shuffled_targets[y]
-            sample = x, y
+            sample = x, self.shuffle_map[y]
         return sample
     
     def get_unique_targets(self):
@@ -85,9 +84,10 @@ class SubDataset(Dataset):
     def enable_label_flipping(self):
         self.flip_labels = True
         unique_targets = sorted(self.get_unique_targets())
-        self.shuffled_targets = list(unique_targets)
-        while unique_targets == self.shuffled_targets and len(unique_targets) > 1:
-            self.shuffled_targets = random.sample(unique_targets, len(unique_targets))
+        shuffled_targets = list(unique_targets)
+        while unique_targets == shuffled_targets and len(unique_targets) > 1:
+            shuffled_targets = random.sample(unique_targets, len(unique_targets))
+        self.shuffle_map = { ut: st for ut, st in zip(unique_targets, shuffled_targets) }
 
 
 class MemorySetDataset(Dataset):
