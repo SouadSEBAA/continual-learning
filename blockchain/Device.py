@@ -1247,7 +1247,7 @@ class Device:
         # usually, if validator acception time is specified, local_epochs should be 1
         if self.is_malicious and self.malicious_behavior == MAL_LAZY:
             perform_training = False
-        elif self.is_malicious_node and self.malicious_behavior == MAL_LAZY_ALT:
+        elif self.is_malicious and self.malicious_behavior == MAL_LAZY_ALT:
             perform_training = random.choice([False, True])
         else:
             perform_training = True
