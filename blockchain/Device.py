@@ -2548,7 +2548,6 @@ class DevicesInNetwork(object):
 
             if is_malicious and self.malicious_behavior == MAL_FLIP:
                 train_datasets = [ copy.copy(sd) for sd in self.train_datasets ]
-                breakpoint()
                 for sd in train_datasets:
                     sd.enable_label_flipping()
             else:
