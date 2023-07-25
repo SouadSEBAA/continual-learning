@@ -1,3 +1,4 @@
+import random
 import torch
 from torch.utils.data import Dataset
 
@@ -34,6 +35,7 @@ class SubDataset(Dataset):
         self.dataset = original_dataset
         self.sub_indeces = []
         self.targets = []
+        self.flip_labels = False
         
         counts = {label:0 for label in sub_labels}
         for index in range(len(self.dataset)):
@@ -71,10 +73,21 @@ class SubDataset(Dataset):
         if self.target_transform:
             target = self.target_transform(sample[1])
             sample = (sample[0], target)
+        if self.flip_labels:
+            x, y = sample
+            y = self.shuffled_targets[y]
+            sample = x, y
         return sample
     
     def get_unique_targets(self):
         return list(set(self.dataset.targets[self.sub_indeces]))
+
+    def enable_label_flipping(self):
+        self.flip_labels = True
+        unique_targets = sorted(self.get_unique_targets())
+        self.shuffled_targets = list(unique_targets)
+        while unique_targets == self.shuffled_targets and len(unique_targets) > 1:
+            self.shuffled_targets = random.sample(unique_targets, len(unique_targets))
 
 
 class MemorySetDataset(Dataset):

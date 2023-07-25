@@ -638,6 +638,13 @@ def add_bc_options(parser, **kwargs):
         default='poa',
         help="defines the consensus mechanism to use, -pow take effect only if this option is set to 'pow'",
     )
+    bc_params.add_argument(
+        "-bc-mb",
+        "--bc-malicious-behavior",
+        type=int,
+        default=0, # MAL_NOISE=0, MAL_FLIP=1, MAL_LAZY=2, MAL_LAZY_ALT=3
+        help="defines the behavior of malicious nodes (Add noise: 0, Flip labels: 1, Lazy node: 2, Half lazy node: 3)",
+    )
 
     # bc_params.add_argument('-bc-la', '--bc-least_assign', type=str, default='*,*,*', help='the assigned number of roles are at least guaranteed in the network')
     return parser

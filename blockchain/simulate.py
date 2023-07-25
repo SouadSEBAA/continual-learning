@@ -257,6 +257,7 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
             gen_iters=gen_iters, # arg
             gen_loss_cbs=gen_loss_cbs, # arg
             structure=structure, # arg
+            malicious_behavior=args["bc_mb"],
             **kwargs, # arg
         )
         # del net

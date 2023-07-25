@@ -53,6 +53,7 @@ class Device:
         gen_iters,
         gen_loss_cbs,
         structure,
+        malicious_behavior,
     ):
         self.idx = idx
         # deep learning variables
@@ -179,6 +180,9 @@ class Device:
         self.gen_iters = gen_iters
         self.gen_loss_cbs = gen_loss_cbs
         self.structure = structure
+
+        # Malicious behavior
+        self.malicious_behavior = malicious_behavior
 
     """ Common Methods """
 
@@ -1212,7 +1216,7 @@ class Device:
                 self.variance_of_noises.append(float(variance_of_noise))
 
     # TODO change to computation power
-    # our TODO: change local update here
+    # our TODO: change local update here [DONE]
     def worker_local_update(
         self, rewards, log_files_folder_path_comm_round, comm_round, local_epochs=1
     ):
@@ -1241,22 +1245,29 @@ class Device:
         self.local_update_time = time.time()
         # local worker update by specified epochs
         # usually, if validator acception time is specified, local_epochs should be 1
-        self.train_fn(
-            net_to_use,
-            self.train_dss,
-            iters=local_epochs,
-            batch_size=self.local_batch_size,
-            baseline=self.baseline,
-            loss_cbs=self.loss_cbs,
-            eval_cbs=eval_cbs,
-            sample_cbs=self.sample_cbs,
-            context_cbs=self.context_cbs,
-            generator=self.generator,
-            gen_iters=self.gen_iters,
-            gen_loss_cbs=self.gen_loss_cbs,
-            structure=self.structure,
-            device=self.dev,
-        )
+        if self.is_malicious and self.malicious_behavior == MAL_LAZY:
+            perform_training = False
+        elif self.is_malicious_node and self.malicious_behavior == MAL_LAZY_ALT:
+            perform_training = random.choice([False, True])
+        else:
+            perform_training = True
+        if perform_training:
+            self.train_fn(
+                net_to_use,
+                self.train_dss,
+                iters=local_epochs,
+                batch_size=self.local_batch_size,
+                baseline=self.baseline,
+                loss_cbs=self.loss_cbs,
+                eval_cbs=eval_cbs,
+                sample_cbs=self.sample_cbs,
+                context_cbs=self.context_cbs,
+                generator=self.generator,
+                gen_iters=self.gen_iters,
+                gen_loss_cbs=self.gen_loss_cbs,
+                structure=self.structure,
+                device=self.dev,
+            )
         # for epoch in range(local_epochs):
         #     for train_dl in self.train_dls:
         #         for data, label in train_dl:
@@ -1271,18 +1282,18 @@ class Device:
             ) / self.computation_power
         except:
             self.local_update_time = float("inf")
-        if self.is_malicious:
-            net_to_use.apply(self.malicious_worker_add_noise_to_weights)
-            print(
-                f"malicious worker {self.idx} has added noise to its local updated weights before transmitting"
-            )
-            with open(
-                f"{log_files_folder_path_comm_round}/comm_{comm_round}_variance_of_noises.txt",
-                "a",
-            ) as file:
-                file.write(
-                    f"{self.return_idx()} {self.return_role()} {is_malicious_node} noise variances: {self.variance_of_noises}\n"
+        if self.is_malicious and self.malicious_behavior == MAL_NOISE:
+                net_to_use.apply(self.malicious_worker_add_noise_to_weights)
+                print(
+                    f"malicious worker {self.idx} has added noise to its local updated weights before transmitting"
                 )
+                with open(
+                    f"{log_files_folder_path_comm_round}/comm_{comm_round}_variance_of_noises.txt",
+                    "a",
+                ) as file:
+                    file.write(
+                        f"{self.return_idx()} {self.return_role()} {is_malicious_node} noise variances: {self.variance_of_noises}\n"
+                    )
         self.net.load_state_dict(net_to_use.state_dict())
         # record accuracies to find good -vh
         with open(
@@ -2391,6 +2402,12 @@ class Device:
 
 
 # our TODO: [DONE]
+
+MAL_NOISE = 0
+MAL_FLIP = 1
+MAL_LAZY = 2
+MAL_LAZY_ALT = 3
+
 class DevicesInNetwork(object):
     def __init__(
         self,
@@ -2431,6 +2448,7 @@ class DevicesInNetwork(object):
         gen_iters=0,
         gen_loss_cbs=list(),
         structure=3,
+        malicious_behavior=MAL_NOISE, # MAL_NOISE=0, MAL_FLIP=1, MAL_LAZY=2, MAL_LAZY_ALT=3
         # watch_clients=[], our TODO: add later
         **kwargs,
     ):
@@ -2477,6 +2495,15 @@ class DevicesInNetwork(object):
         self.gen_iters = gen_iters
         self.gen_loss_cbs = gen_loss_cbs
         self.structure = structure
+        self.malicious_behavior = malicious_behavior
+        if self.num_malicious > 0:
+            msgs = [
+                "Add noise",
+                "Flip labels",
+                "Lazy node",
+                "Half lazy node",
+            ]
+            print(f"----------------------- MALICIOUS BEHAVIOR: ({self.malicious_behavior}) {msgs[self.malicious_behavior]} -----------------------")
         """ shard """
         self.data_set_balanced_allocation()
 
@@ -2519,13 +2546,21 @@ class DevicesInNetwork(object):
             #     for idx, test_dataset in enumerate(self.test_datasets)
             # ]
 
+            if is_malicious and self.malicious_behavior == MAL_FLIP:
+                train_datasets = [ copy.copy(sd) for sd in self.train_datasets ]
+                breakpoint()
+                for sd in train_datasets:
+                    sd.enable_label_flipping()
+            else:
+                train_datasets = self.train_datasets
+
             a_device = Device(
                 idx=device_idx,
                 # assigned_train_dss=assigned_train_dss,
                 # assigned_test_dss=assigned_test_dss,
                 train_idxs=user_groups_train[i],
                 test_idxs=user_groups_test[i],
-                train_datasets=self.train_datasets,
+                train_datasets=train_datasets,
                 test_datasets=self.test_datasets,
                 local_batch_size=self.batch_size,
                 network_stability=self.default_network_stability,
@@ -2555,6 +2590,7 @@ class DevicesInNetwork(object):
                 gen_iters=self.gen_iters,
                 gen_loss_cbs=self.gen_loss_cbs,
                 structure=self.structure,
+                malicious_behavior=self.malicious_behavior,
             )
             # device index starts from 1
             self.devices_set[device_idx] = a_device
