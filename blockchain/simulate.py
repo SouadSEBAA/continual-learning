@@ -60,6 +60,7 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
 
     # pre-define system variables
     latest_round_num = 0
+    ttf_during_comm_rounds = {}
 
     """ If network_snapshot is specified, continue from left """
     if args["bc_resume_path"]:
@@ -511,6 +512,9 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                 records_dict[worker] = {}
             # used for arrival time easy sorting for later validator broadcasting (and miners' acception order)
             transaction_arrival_queue = {}
+            # to calculate the ttf
+            ttf_start = time.time()
+            workers_training_time = 0
             # workers local_updates() called here as their updates transmission may be restrained by miners' acception time and/or size
             if args["bc_miner_acception_wait_time"]:
                 print(
@@ -642,6 +646,7 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                                     )
                             update_iter += 1
             else:
+                start_training = time.time()
                 # did not specify wait time. every associated worker perform specified number of local epochs
                 for worker_iter in range(len(associated_workers)):
                     worker = associated_workers[worker_iter]
@@ -690,6 +695,8 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                         print(
                             f"worker {worker.return_idx()} in validator {validator.return_idx()}'s black list. This worker's transactions won't be accpeted."
                         )
+                finished_training = time.time()
+                workers_training_time += finished_training - start_training
             validator.set_unordered_arrival_time_accepted_worker_transactions(
                 transaction_arrival_queue
             )
@@ -1079,6 +1086,10 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                 validators_pool_for_next_round = sorted(workers_and_accuracies, key=lambda tup :tup[0], reverse=True)
                 for acc, v in validators_pool_for_next_round:
                     print(f"Worker {v} accuracies sum {acc}")
+            
+            ttf_end = time.time()
+            ttf = ttf_end - ttf_start - workers_training_time
+            ttf_during_comm_rounds[comm_round] = ttf
 
         else:
             print(''' Step 4 - validators send post validation transactions to associated miner and miner broadcasts these to other miners in their respecitve peer lists''')
@@ -1377,6 +1388,8 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
             file.write(f"mining_consensus: {mining_consensus} {args['bc_pow_difficulty']}\n")
             file.write(f"forking_happened: {forking_happened}\n")
             file.write(f"comm_round_spent_time_on_this_machine: {comm_round_spent_time}\n")
+            file.write(f"ttf: {ttf}\n")
+
         conn.commit()
 
         # if no forking, log the block miner
@@ -1428,3 +1441,13 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
 
     # set global model
     net.load_state_dict(devices_list[0].return_global_parameters())
+
+    # log the ttf average
+    counted_rounds = len(ttf_during_comm_rounds)
+    ttf_average = sum(ttf_during_comm_rounds.values()) / counted_rounds
+    print(f"TTF average over {counted_rounds} registered ttfs: {ttf_average}")
+    with open(f"{log_files_folder_path}/ttf.txt", "w") as f:
+        f.write("TTFs per round:\n\n")
+        for r in ttf_during_comm_rounds:
+            f.write(f"Round {r}: {ttf_during_comm_rounds[r]}\n")
+        f.write(f"\nTTF average: {ttf_average}")
