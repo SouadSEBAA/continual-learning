@@ -669,6 +669,11 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                             unverified_transactions_size = getsizeof(
                                 str(unverified_transaction)
                             )
+                            print(f"str(unverified_transaction): {str(unverified_transaction)}")
+                            print(f"unverified transaction size (str): {unverified_transactions_size}")
+                            print(f"unverified_transaction: {unverified_transaction}")
+                            print(f"unverified transaction size: {getsizeof(unverified_transaction)}")
+                            input("[ENTER]")
                             transmission_delay = (
                                 unverified_transactions_size / lower_link_speed
                             )
