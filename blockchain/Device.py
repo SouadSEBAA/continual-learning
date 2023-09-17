@@ -325,7 +325,7 @@ class Device:
         return self.online
 
     def update_peer_list(self):
-        # print(f"\n{self.idx} - {self.role} is updating peer list...")
+        print(f"\n{self.idx} - {self.role} is updating peer list...")
         old_peer_list = copy.copy(self.peer_list)
         online_peers = set()
         for peer in self.peer_list:
@@ -531,9 +531,9 @@ class Device:
                 # )
                 return True
             else:
-                print(
-                    f"Signature invalid. Transaction recorded by {miner_device_idx} is NOT verified."
-                )
+                # print(
+                #     f"Signature invalid. Transaction recorded by {miner_device_idx} is NOT verified."
+                # )
                 return False
         else:
             # print(
@@ -601,9 +601,9 @@ class Device:
 
     def add_block(self, block_to_add):
         self.return_blockchain_object().append_block(block_to_add)
-        print(
-            f"d_{self.idx.split('_')[-1]} - {self.role[0]} has appened a block to its chain. Chain length now - {self.return_blockchain_object().return_chain_length()}"
-        )
+        # print(
+        #     f"d_{self.idx.split('_')[-1]} - {self.role[0]} has appened a block to its chain. Chain length now - {self.return_blockchain_object().return_chain_length()}"
+        # )
         # TODO delete has_added_block
         # self.has_added_block = True
         self.the_added_block = block_to_add
@@ -1525,9 +1525,9 @@ class Device:
             if peer.is_online():
                 if peer.return_role() == "miner":
                     if not peer.return_idx() in self.black_list:
-                        # print(
-                        #     f"{self.role} {self.idx} is propagating its mined block to {peer.return_role()} {peer.return_idx()}."
-                        # )
+                        print(
+                            f"{self.role} {self.idx} is propagating its mined block to {peer.return_role()} {peer.return_idx()}."
+                        )
                         if peer.online_switcher():
                             peer.accept_the_propagated_block(
                                 self,
@@ -1556,9 +1556,9 @@ class Device:
             self.unordered_propagated_block_processing_queue[
                 source_miner_propagating_time_point + transmission_delay
             ] = propagated_block
-            # print(
-            #     f"{self.role} {self.idx} has accepted accepted a propagated block from miner {source_miner.return_idx()}"
-            # )
+            print(
+                f"{self.role} {self.idx} has accepted accepted a propagated block from miner {source_miner.return_idx()}"
+            )
         else:
             print(
                 f"Source miner {source_miner.return_role()} {source_miner.return_idx()} is in {self.role} {self.idx}'s black list. Propagated block not accepted."
@@ -1636,9 +1636,10 @@ class Device:
                         time.time() - verification_time
                     ) / self.computation_power, False
             else:
-                # print(
-                #     f"Signature of transaction from validator {transaction_validator_idx} is verified by {self.role} {self.idx}!"
-                # )
+                # demo weird bug
+                print(
+                    f"Signature of transaction from validator {transaction_validator_idx} is verified by {self.role} {self.idx}!"
+                )
                 verification_time = (
                     time.time() - verification_time
                 ) / self.computation_power
@@ -1911,7 +1912,7 @@ class Device:
     def aggregate_accuracy_gains(self):
         accuracy_gains_by_worker = {}
         aggregated_accuracy_gains = {}
-        # print(f"{self.role} {self.return_idx()} is summing received accuracy gains")
+        print(f"\n{self.role} {self.return_idx()} is summing received accuracy gains")
         for _, _, verified_transaction in self.return_post_validation_transactions_queue():
             worker_idx = verified_transaction['worker_device_idx']
             if worker_idx in accuracy_gains_by_worker:
@@ -1971,9 +1972,9 @@ class Device:
             if peer.is_online():
                 if peer.return_role() == self.role:
                     if not peer.return_idx() in self.black_list:
-                        # print(
-                        #     f"{self.role} {self.idx} is broadcasting transactions to {peer.return_role()} {peer.return_idx()}."
-                        # )
+                        print(
+                            f"{self.role} {self.idx} is broadcasting transactions to {peer.return_role()} {peer.return_idx()}."
+                        )
                         peer.accept_broadcasted_transactions(
                             self, self.unconfirmmed_transactions
                         )
@@ -1988,9 +1989,9 @@ class Device:
             self.broadcasted_transactions.append(
                 copy.deepcopy(broadcasted_transactions)
             )
-            # print(
-            #     f"{self.role} {self.idx} has accepted transactions from {source_device.return_role()} {source_device.return_idx()}"
-            # )
+            print(
+                f"{self.role} {self.idx} has accepted transactions from {source_device.return_role()} {source_device.return_idx()}"
+            )
         else:
             print(
                 f"Source {source_device.return_role()} {source_device.return_idx()} is in {self.role} {self.idx}'s black list. Transaction not accepted."
@@ -2018,9 +2019,9 @@ class Device:
         if not to_associate_device:
             # there is no device matching the required associated role in this device's peer list
             return False
-        # print(
-        #     f"{self.role} {self.idx} associated with {to_associate_device.return_role()} {to_associate_device.return_idx()}"
-        # )
+        print(
+            f"{self.role} {self.idx} associated with {to_associate_device.return_role()} {to_associate_device.return_idx()}"
+        )
         return to_associate_device
 
     """ validator """
@@ -2040,9 +2041,9 @@ class Device:
             if peer.is_online():
                 if peer.return_role() == "validator":
                     if not peer.return_idx() in self.black_list:
-                        # print(
-                        #     f"validator {self.idx} is broadcasting received validator transactions to validator {peer.return_idx()}."
-                        # )
+                        print(
+                            f"validator {self.idx} is broadcasting received validator transactions to validator {peer.return_idx()}."
+                        )
                         final_broadcasting_unordered_arrival_time_accepted_worker_transactions_for_dest_validator = copy.copy(
                             self.unordered_arrival_time_accepted_worker_transactions
                         )
@@ -2062,9 +2063,9 @@ class Device:
                             self,
                             final_broadcasting_unordered_arrival_time_accepted_worker_transactions_for_dest_validator,
                         )
-                        # print(
-                        #     f"validator {self.idx} has broadcasted {len(final_broadcasting_unordered_arrival_time_accepted_worker_transactions_for_dest_validator)} worker transactions to validator {peer.return_idx()}."
-                        # )
+                        print(
+                            f"validator {self.idx} has broadcasted {len(final_broadcasting_unordered_arrival_time_accepted_worker_transactions_for_dest_validator)} worker transactions to validator {peer.return_idx()}."
+                        )
                     else:
                         print(
                             f"Destination validator {peer.return_idx()} is in this validator {self.idx}'s black_list. broadcasting skipped for this dest validator."
@@ -2084,9 +2085,9 @@ class Device:
                     ),
                 }
             )
-            # print(
-            #     f"validator {self.idx} has accepted worker transactions from validator {source_validator.return_idx()}"
-            # )
+            print(
+                f"validator {self.idx} has accepted worker transactions from validator {source_validator.return_idx()}"
+            )
         else:
             print(
                 f"Source validator {source_validator.return_idx()} is in validator {self.idx}'s black list. Broadcasted transactions not accepted."
@@ -2106,7 +2107,7 @@ class Device:
     def validator_update_model_by_one_epoch_and_validate_local_accuracy(self):
         # return time spent
         print(
-            f"\nValidator {self.idx} is performing one epoch of local update and validation"
+            f"validator {self.idx} is performing one epoch of local update and validation"
         )
         if self.computation_power == 0:
             print(
@@ -2177,12 +2178,11 @@ class Device:
                 transaction_to_validate['worker_signature_valid'] = True
             # 2 - validate worker's local_updates_params if worker's signature is valid
             if transaction_to_validate['worker_signature_valid']:
-                print(f"\nValidating local update of worker {worker_transaction_device_idx}")
                 # accuracy validated by worker's update
                 accuracy_by_worker_update_using_own_data = self.validate_model_weights(transaction_to_validate["local_updates_params"])
                 # if worker's accuracy larger, or lower but the difference falls within the validator threshold value, meaning worker's updated model favors validator's dataset, so their updates are in the same direction - True, otherwise False. We do not consider the accuracy gap so far, meaning if worker's update is way too good, it is still fine
-                # print(f'Validator updated model accuracy - {self.validator_local_accuracy}')
-                print(f"After applying worker's update, accuracy is - {accuracy_by_worker_update_using_own_data}")
+                # print(f'validator updated model accuracy - {self.validator_local_accuracy}')
+                print(f"After applying worker's update, model accuracy becomes - {accuracy_by_worker_update_using_own_data}")
                 # record their accuracies and difference for choosing a good validator threshold
                 is_malicious_validator = "M" if self.is_malicious else "B"
                 with open(f"{log_files_folder_path_comm_round}/validator_{self.idx}_{is_malicious_validator}_validation_records_comm_{comm_round}.txt", "a") as file:
@@ -2304,7 +2304,7 @@ class Device:
             # verified = round(transaction_in_block['aggregated_accuracy'].item(),7) == round(self.aggregated_accuracy_gains[transaction_in_block['worker_device_idx']].item(),7)
             verified = transaction_in_block['aggregated_accuracy'] == self.aggregated_accuracy_gains[transaction_in_block['worker_device_idx']]
             if not verified:
-                print(f"---------------- summed acc gain not verified in block {transaction_in_block['aggregated_accuracy']} and in validator it has {self.aggregated_accuracy_gains[transaction_in_block['worker_device_idx']]}")
+                # print(f"---------------- aggregated acc not verified in block {transaction_in_block['aggregated_accuracy']} and in validator it has {self.aggregated_accuracy_gains[transaction_in_block['worker_device_idx']]}")
                 return None, time.time() - start
         # verify the federated averaging is correct
         calculated_global_parameters = self.calculate_global_update()
@@ -2322,12 +2322,12 @@ class Device:
                 verified = False
             if not verified:
                 # print('---------------- global model not verified', len(calculated_global_parameters) == len(block_global_parameters), var)
-                print('---------------- global model not verified')
+                # print('---------------- global model not verified')
                 # for i in calculated_global_parameters[var]:
                     # print(i)
                 # for v in res:
                     # print(v)
-                  # for i, v in enumerate(res):
+                # for i, v in enumerate(res):
                 # 	print(i, v)
                 # 	if not bool(v):
                 # 		print(f'element {i} {v} {calculated_global_parameters[var][i]} {block_global_parameters[var][i]}')

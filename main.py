@@ -407,7 +407,7 @@ def run(args, verbose=False):
         cb._eval_cb(log=args.iters, test_datasets=test_datasets, plotting_dict=plotting_dict,
                     visdom=visdom if checkattr(args, 'prototypes') or checkattr(args, 'gen_classifier') else None,
                     iters_per_context=args.iters, test_size=args.acc_n, S=args.eval_s if hasattr(args, 'eval_s') else 1),
-        cb._eval_after_each_context_cb(test_datasets=test_datasets, verbose=verbose),
+        cb._eval_after_each_context_cb(test_datasets=test_datasets, verbose=False if 'fl' in args and args.fl else verbose),
     ]
 
     #-------------------------------------------------------------------------------------------------#
@@ -735,7 +735,7 @@ if __name__ == '__main__':
     verbose=True
     # -load input-arguments
     args = handle_inputs()
-    if 'blockchain' in args:
+    if 'bc' in args and args.bc:
         verbose = False
     # -run experiment
     run(args, verbose=verbose)

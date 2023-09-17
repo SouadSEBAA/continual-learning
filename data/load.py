@@ -163,7 +163,7 @@ def get_context_set(name, scenario, contexts, data_dir="./datasets", only_config
         for i in range(contexts):
             x_train, x_test, y_train, y_test = train_test_split(subsets[i][0], subsets[i][1])
 
-            print(f'context {i+1}: ')
+            verbose and print(f'context {i+1}: ')
 
             trainset = get_dataset(data_type, dir=data_dir, verbose=False, none=True)
             trainset.data = x_train
