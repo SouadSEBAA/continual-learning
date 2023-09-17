@@ -16,7 +16,7 @@ from utils import plot_contexts_infos
 
 def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
              loss_cbs=list(), eval_cbs=list(), sample_cbs=list(), context_cbs=list(),
-             generator=None, gen_iters=0, gen_loss_cbs=list(), no_eval=False, device=None, **kwargs):
+             generator=None, gen_iters=0, gen_loss_cbs=list(), no_eval=True, device=None, **kwargs):
     '''Train a model (with a "train_a_batch" method) on multiple contexts.
 
     [model]               <nn.Module> main model to optimize across all contexts
@@ -461,7 +461,7 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
         for k in cxts_results["avg_performance"]:
             cxts_results["avg_performance"][k] = cxts_results["avg_performance"][k] / len(train_datasets)
 
-        print('\n\n' + ' SUMMARY OF EVALATION OVER CONTEXTS'.center(70, '*'))
+        print('\n\n' + ' SUMMARY OF EVALUATION OVER CONTEXTS'.center(70, '*'))
         print("Per class perfomance:")
         tbl = PrettyTable()
         tbl.field_names = [''] + list(classes_count.keys())

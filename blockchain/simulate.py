@@ -444,7 +444,7 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
         """ workers, validators and miners take turns to perform jobs """
 
         print(
-            """ Step 1 - workers assign associated miner and validator (and do local updates, but it is implemented in code block of step 2) \n"""
+            """\n Step 1 - workers assign associated miner and validator (and do local updates, but it is implemented in code block of step 2) \n"""
         )
         for worker_iter in range(len(workers_this_round)):
             worker = workers_this_round[worker_iter]
@@ -477,7 +477,7 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                     )
 
         print(
-            """ Step 2 - validators accept local updates and broadcast to other validators in their respective peer lists (workers local_updates() are called in this step.\n"""
+            """\n Step 2 - validators accept local updates and broadcast to other validators in their respective peer lists (workers local_updates() are called in this step.\n"""
         )
         for validator_iter in range(len(validators_this_round)):
             validator = validators_this_round[validator_iter]
@@ -503,9 +503,9 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                 )
                 continue
             validator_link_speed = validator.return_link_speed()
-            print(
-                f"{validator.return_idx()} - validator {validator_iter+1}/{len(validators_this_round)} is accepting workers' updates with link speed {validator_link_speed} bytes/s, if online..."
-            )
+            # print(
+            #     f"{validator.return_idx()} - validator {validator_iter+1}/{len(validators_this_round)} is accepting workers' updates with link speed {validator_link_speed} bytes/s, if online..."
+            # )
             # records_dict used to record transmission delay for each epoch to determine the next epoch updates arrival time
             records_dict = dict.fromkeys(associated_workers, None)
             for worker, _ in records_dict.items():
@@ -522,7 +522,7 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                     if not worker.return_idx() in validator.return_black_list():
                         # TODO here, also add print() for below miner's validators
                         print(
-                            f"worker {worker_iter+1}/{len(associated_workers)} of validator {validator.return_idx()} is doing local updates"
+                            f"\nworker {worker_iter+1}/{len(associated_workers)} of validator {validator.return_idx()} is doing local updates"
                         )
                         total_time_tracker = 0
                         update_iter = 1
@@ -648,7 +648,7 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                     worker = associated_workers[worker_iter]
                     if not worker.return_idx() in validator.return_black_list():
                         print(
-                            f"worker {worker_iter+1}/{len(associated_workers)} of validator {validator.return_idx()} is doing local updates"
+                            f"\nworker {worker_iter+1}/{len(associated_workers)} is doing local updates"
                         )
                         if worker.online_switcher():
                             local_update_spent_time = worker.worker_local_update(
@@ -669,11 +669,11 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                             unverified_transactions_size = getsizeof(
                                 str(unverified_transaction)
                             )
-                            print(f"str(unverified_transaction): {str(unverified_transaction)}")
-                            print(f"unverified transaction size (str): {unverified_transactions_size}")
-                            print(f"unverified_transaction: {unverified_transaction}")
-                            print(f"unverified transaction size: {getsizeof(unverified_transaction)}")
-                            input("[ENTER]")
+                            # print(f"str(unverified_transaction): {str(unverified_transaction)}")
+                            # print(f"unverified transaction size (str): {unverified_transactions_size}")
+                            # print(f"unverified_transaction: {unverified_transaction}")
+                            # print(f"unverified transaction size: {getsizeof(unverified_transaction)}")
+                            # input("[ENTER]")
                             transmission_delay = (
                                 unverified_transactions_size / lower_link_speed
                             )
@@ -681,9 +681,9 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                                 transaction_arrival_queue[
                                     local_update_spent_time + transmission_delay
                                 ] = unverified_transaction
-                                print(
-                                    f"validator {validator.return_idx()} has accepted this transaction."
-                                )
+                                # print(
+                                #     f"validator {validator.return_idx()} has accepted this transaction."
+                                # )
                             else:
                                 print(
                                     f"validator {validator.return_idx()} offline and unable to accept this transaction"
@@ -712,17 +712,17 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                     "No transactions have been received by this validator, probably due to workers and/or validators offline or timeout while doing local updates or transmitting updates, or all workers are in validator's black list."
                 )
 
-        print(
-            """ Step 2.5 - with the broadcasted workers transactions, validators decide the final transaction arrival order \n"""
-        )
+        # print(
+        #     """\n Step 2.5 - with the broadcasted workers transactions, validators decide the final transaction arrival order \n"""
+        # )
         for validator_iter in range(len(validators_this_round)):
             validator = validators_this_round[validator_iter]
             accepted_broadcasted_validator_transactions = (
                 validator.return_accepted_broadcasted_worker_transactions()
             )
-            print(
-                f"{validator.return_idx()} - validator {validator_iter+1}/{len(validators_this_round)} is calculating the final transactions arrival order by combining the direct worker transactions received and received broadcasted transactions..."
-            )
+            # print(
+            #     f"{validator.return_idx()} - validator {validator_iter+1}/{len(validators_this_round)} is calculating the final transactions arrival order by combining the direct worker transactions received and received broadcasted transactions..."
+            # )
             accepted_broadcasted_transactions_arrival_queue = {}
             if accepted_broadcasted_validator_transactions:
                 # calculate broadcasted transactions arrival time
@@ -764,12 +764,13 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
             validator.set_transaction_for_final_validating_queue(
                 final_transactions_arrival_queue
             )
-            print(
-                f"{validator.return_idx()} - validator {validator_iter+1}/{len(validators_this_round)} done calculating the ordered final transactions arrival order. Total {len(final_transactions_arrival_queue)} accepted transactions."
-            )
+            # print(
+            #     f"{validator.return_idx()} - validator {validator_iter+1}/{len(validators_this_round)} done calculating the ordered final transactions arrival order. Total {len(final_transactions_arrival_queue)} accepted transactions."
+            # )
 
         print(
-            """ Step 3 - validators do self and cross-validation(validate local updates from workers) by the order of transaction arrival time.\n"""
+            #""" Step 3 - validators do self and cross-validation(validate local updates from workers) by the order of transaction arrival time.\n"""
+            """\n Step 3 - validators validate local updates from workers.\n"""
         )
         for validator_iter in range(len(validators_this_round)):
             validator = validators_this_round[validator_iter]
@@ -780,9 +781,9 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                 # validator asynchronously does one epoch of update and validate on its own test set
                 local_validation_time = validator.validator_update_model_by_one_epoch_and_validate_local_accuracy(
                 )
-                print(
-                    f"{validator.return_idx()} - validator {validator_iter+1}/{len(validators_this_round)} is validating received worker transactions..."
-                )
+                # print(
+                #     f"{validator.return_idx()} - validator {validator_iter+1}/{len(validators_this_round)} is validating received worker transactions..."
+                # )
                 for (
                     arrival_time,
                     unconfirmmed_transaction,
@@ -809,9 +810,9 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                                     post_validation_unconfirmmed_transaction,
                                 )
                             )
-                            print(
-                                f"A validation process has been done for the transaction from worker {post_validation_unconfirmmed_transaction['worker_device_idx']} by validator {validator.return_idx()}"
-                            )
+                            # print(
+                            #     f"A validation process has been done for the transaction from worker {post_validation_unconfirmmed_transaction['worker_device_idx']} by validator {validator.return_idx()}"
+                            # )
                     else:
                         print(
                             f"A validation process is skipped for the transaction from worker {post_validation_unconfirmmed_transaction['worker_device_idx']} by validator {validator.return_idx()} due to validator offline."
@@ -824,7 +825,7 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
         if mining_consensus == 'PoA':
             print('''\n Step 4 - validators broadcast calculated accuracy gains to other validators''')
             for broadcasting_validator_iter, broadcasting_validator in enumerate(validators_this_round):
-                print(f"{broadcasting_validator.return_idx()} - validator {broadcasting_validator_iter+1}/{len(validators_this_round)} is broadcasting its calculated acc gain (via transactions)...")
+                # print(f"{broadcasting_validator.return_idx()} - validator {broadcasting_validator_iter+1}/{len(validators_this_round)} is broadcasting its calculated acc gain (via transactions)...")
                 post_validation_transactions_by_validator = broadcasting_validator.return_post_validation_transactions_queue()
                 for _, _, unverified_transaction in post_validation_transactions_by_validator:
                     if validator.online_switcher():
@@ -837,24 +838,24 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
 
             print('''\n Step 5 - validators verify transactions received from other validators''')
             for validator_iter, validator in enumerate(validators_this_round):
-                print(f"{broadcasting_validator.return_idx()} - validator {broadcasting_validator_iter+1}/{len(validators_this_round)} is verifying received validator transactions...")
+                # print(f"{broadcasting_validator.return_idx()} - validator {broadcasting_validator_iter+1}/{len(validators_this_round)} is verifying received validator transactions...")
                 received_post_validation_transactions = validator.return_received_post_validation_transactions()
                 for unverified_transaction_iter, unverified_transaction in enumerate(received_post_validation_transactions):
                     verification_time, is_validator_sig_valid = validator.verify_validator_transaction(unverified_transaction)
                     if verification_time and is_validator_sig_valid:
                         validator.add_post_validation_transaction_to_queue((-1, -1, unverified_transaction))
-                        print(f"validator {validator.return_idx()} has verified {unverified_transaction_iter+1}/{len(received_post_validation_transactions)} post-validation transaction from validator {validator.return_idx()}")
+                        # print(f"validator {validator.return_idx()} has verified {unverified_transaction_iter+1}/{len(received_post_validation_transactions)} post-validation transaction from validator {validator.return_idx()}")
 
             print('''\n Step 6 - aggregate accuracy gains calculated by all validators for each worker''')
             for validator in validators_this_round:
                 validator.aggregate_accuracy_gains()
-                print(f"validator {validator.return_idx()} has aggregated accuracy gains from all the received accuracy gains")
+                print(f"validator {validator.return_idx()} has summed accuracy gains from all received accuracy gains")
             
             print('''\n Step 7 - begin consensus''')
             finished_consensus, consensus_rounds = False, 0
             already_leveraged_as_speakers = set()
             while not finished_consensus:
-                print('''\n Step 7.1 - choose speaker among delegates (validators)''')
+                print('''\n Step 7.1 - choose speaker among validators''')
                 # choose randomly a speaker among delegates (validators)
                 if len(already_leveraged_as_speakers) == len(validators_this_round):
                     print(f"No validators remaining to choose from for speaker role")
@@ -868,7 +869,7 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                     delegates = []
                     for validator in validators_this_round:
                         # delegates.append(validator) if not validator.speaker else None
-                        print(f"{validator.return_idx()} is speaker: {validator.speaker}")
+                        # print(f"{validator.return_idx()} is speaker: {validator.speaker}")
                         delegates.append(validator) if not validator.return_idx() == speaker.return_idx() else None
                         validator.delegate_clear_unordered_propagated_block_processing_queue()
                     print(f"validator {speaker.return_idx()} has been chosen as speaker for the consensus round {consensus_rounds}")
@@ -992,7 +993,7 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                         # record mining time
                         block_generation_time_spent = (time.time() - start_time_point)/miner_computation_power
                         speaker.set_block_generation_time_point(begin_mining_time + block_generation_time_spent)
-                        print(f"{speaker.return_idx()} - speaker mines a block in {block_generation_time_spent} seconds.")
+                        print(f"{speaker.return_idx()} - speaker built the block in {block_generation_time_spent} seconds.")
                     else:
                         print(f"Unfortunately, {speaker.return_idx()} - speaker goes offline after, if successful, mining a block. This if-successful-mined block is not propagated.")
                 else:
@@ -1011,9 +1012,9 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                     unordered_propagated_block_processing_queue = delegate.return_unordered_propagated_block_processing_queue()
                     ordered_all_blocks_processing_queue = sorted(unordered_propagated_block_processing_queue.items())
                     if ordered_all_blocks_processing_queue:
-                        print("accept block based on PoA")
+                        # print("accept block based on PoA")
                         # abort mining if propagated block is received
-                        print(f"{delegate.return_idx()} - delegate {delegate_iter+1}/{len(delegates)} is deciding if a valid propagated block received ")
+                        print(f"\n{delegate.return_idx()} - validator {delegate_iter+1}/{len(delegates)} is deciding if a valid propagated block received ")
                         for (block_arrival_time, block_to_verify) in ordered_all_blocks_processing_queue:
                             # delegates verify the candidate block
                             block, verification_time = delegate.delegate_verify_block(block_to_verify)
@@ -1021,10 +1022,10 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                                 # delegate sign it if it's verified and sents it back to speaker
                                 signature = delegate.sign_msg(block)
                                 speaker.speaker_add_delegate_signature_after_verification(signature, validator.return_rsa_pub_key())
-                                print(f"Delegate {delegate.return_idx()} signed the propagated block proposed by speaker {block.return_mined_by()}.")
+                                print(f"validator {delegate.return_idx()} signed the propagated block proposed by speaker {block.return_mined_by()}.")
 
                         delegate.add_to_round_end_time(block_arrival_time + verification_time)
-                print(f"{len(speaker.delegates_signatures)}/{len(delegates)} from delegates approved the candidate block")
+                print(f"\n{len(speaker.delegates_signatures)}/{len(delegates)} from validators approved the candidate block")
                 verified_block = None
                 if len(speaker.delegates_signatures) >= 0.66 * len(delegates):
                     verified_block = block_to_verify
@@ -1065,10 +1066,11 @@ def simulate_bc(args, dev, model, train_datasets, test_datasets, train_fn, basel
                 with open(f"{log_files_folder_path}/forking_and_no_valid_block_log.txt", 'a') as file:
                     file.write(f"Forking in round {comm_round}\n")
             else:
-                print("No forking event happened.")
+                pass
+                # print("No forking event happened.")
                 
 
-            print('''\n Step 8 last step - process the added block - 1.collect usable updated params\n 2.malicious nodes identification\n 3.update global model locally\n This code block is skipped if no valid block was generated in this round''')
+            print('''\n Step 8 last step - process the added block\n - 1.collect usable updated params\n 2.malicious nodes identification\n 3.update global model locally\n This code block is skipped if no valid block was generated in this round''')
             all_devices_round_ends_time = []
             for device in devices_list:
                 if device.return_the_added_block() and device.online_switcher():

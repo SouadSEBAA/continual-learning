@@ -622,8 +622,8 @@ def run(args, verbose=False):
         model.S = args.eval_s
 
     # Evaluate accuracy of final model on full test-set
-    if verbose:
-        print("\n Accuracy of final model on test-set:")
+    # if verbose:
+    #     print("\n Accuracy of final model on test-set:")
     accs_per_context = []
     confusion_matrix = np.zeros((NUM_CLASSES, NUM_CLASSES))
     for i in range(args.contexts):
@@ -635,8 +635,8 @@ def run(args, verbose=False):
             cm=confusion_matrix,
             active_classes=range(NUM_CLASSES)
         )
-        if verbose:
-            print(" - Context {}: {:.4f}".format(i + 1, context_acc))
+        # if verbose:
+        #     print(" - Context {}: {:.4f}".format(i + 1, context_acc))
         accs_per_context.append(context_acc)
 
     # average accuracy among contexts
@@ -732,7 +732,10 @@ def run(args, verbose=False):
 
 
 if __name__ == '__main__':
+    verbose=True
     # -load input-arguments
     args = handle_inputs()
+    if 'blockchain' in args:
+        verbose = False
     # -run experiment
-    run(args, verbose=True)
+    run(args, verbose=verbose)

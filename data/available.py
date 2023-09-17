@@ -14,13 +14,22 @@ IMAGE_EDGE_SIZE = int(math.sqrt(NUM_COLUMNS))
 NUM_CLASSES = 9
 
 def setup_dataset(df: pd.DataFrame, verbose=True):
+    shrink_dataset_for_demo(df, 5000)
+
     verbose and print('\nClasses percentage:', df[LABEL_COLUMN].value_counts(normalize=True))
-    verbose and print('Classes samples count:', df[LABEL_COLUMN].value_counts(normalize=False))
+    verbose and print('\nClasses samples count:', df[LABEL_COLUMN].value_counts(normalize=False))
 
     for i in range(NUM_COLUMNS - len(df.columns) + 1):
         df[f'nan{i}'] = 0
 
-    print(f'number of columns {len(df.columns)}')
+    print(f'\nNumber of columns {len(df.columns)}')
+
+def shrink_dataset_for_demo(df, x_to_leave_from_each_class):
+    class_values = df[LABEL_COLUMN].unique()
+    for cls in class_values:
+        l = len(df.index[df[LABEL_COLUMN] == cls])
+        p = 1 - min(l, x_to_leave_from_each_class) / l
+        reduce_class(df, LABEL_COLUMN, cls, p)
 
 def reduce_class(df, col_name, class_val, p):
     indices = df.index[df[col_name] == class_val]
@@ -61,7 +70,6 @@ class networkDataset(Dataset):
 
         df = pd.read_csv(src_file)
         setup_dataset(df)
-        print(f'number of columns {len(df.columns)}')
         le = LabelEncoder()
         df[LABEL_COLUMN] = le.fit_transform(df[LABEL_COLUMN])
         if verbose:

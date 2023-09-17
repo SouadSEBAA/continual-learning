@@ -135,7 +135,7 @@ def get_context_set(name, scenario, contexts, data_dir="./datasets", only_config
         perm_class_list = np.array(list(range(classes))) if exception else np.random.permutation(list(range(classes)))
         target_transform = transforms.Lambda(lambda y, p=perm_class_list: int(p[y]))
         
-        print(f"\nScenario: {structure}")
+        # print(f"\nScenario: {structure}")
         train_datasets, test_datasets = [], []
         dataset = get_dataset(data_type, dir=data_dir, target_transform=target_transform,
                                 verbose=True, augment=augment, normalize=normalize, all=True)
@@ -192,7 +192,7 @@ def define_classes_context(struct, Ncontexts):
 def define_one_context_classes(structure, i, included_classes_so_far=[]):
     included_classes = list(set(included_classes_so_far))
     # add one class per context
-    if structure == 1 or structure == 2:
+    if structure == 1:
         if i == 0:
             included_classes = [0,1]
         elif i == 1:
@@ -209,7 +209,7 @@ def define_one_context_classes(structure, i, included_classes_so_far=[]):
             included_classes = [0,1,2,3,4,5,6,7]
         elif i == 7:
             included_classes = [0,1,2,3,4,5,6,7,8]
-    elif structure == 3:
+    elif structure == 2:
         # this order gave 0.91 of accuracy
         if i == 0:
             included_classes = [0,5]
@@ -239,26 +239,26 @@ def define_one_context_classes(structure, i, included_classes_so_far=[]):
             included_classes = [0,7,8,5,1,4,2,3]
         elif i == 4:
             included_classes = [0,7,8,5,1,4,2,3,6]
-
-        # this order gave 0.28 of accuracy with lr=0.01
-        # if i == 0:
-        #     included_classes = [0,4]
-        # elif i == 1:
-        #     included_classes = [0,4,6]
-        # elif i == 2:
-        #     included_classes = [0,4,6,1]
-        # elif i == 3:
-        #     included_classes = [0,4,6,1,3]
-        # elif i == 4:
-        #     included_classes = [0,4,6,1,3,7]
-        # elif i == 5:
-        #     included_classes = [0,4,6,1,3,7,8]
-        # elif i == 6:
-        #     included_classes = [0,4,6,1,3,7,8,2]
-        # elif i == 7:
-        #     included_classes = [0,4,6,1,3,7,8,2,5]
-        # elif i == 8:
-         #    included_classes = [0,4,6,1,3,7,8,2,5]
+    elif structure == 3:
+        #this order gave 0.28 of accuracy with lr=0.01
+        if i == 0:
+            included_classes = [0,4]
+        elif i == 1:
+            included_classes = [0,4,6]
+        elif i == 2:
+            included_classes = [0,4,6,1]
+        elif i == 3:
+            included_classes = [0,4,6,1,3]
+        elif i == 4:
+            included_classes = [0,4,6,1,3,7]
+        elif i == 5:
+            included_classes = [0,4,6,1,3,7,8]
+        elif i == 6:
+            included_classes = [0,4,6,1,3,7,8,2]
+        elif i == 7:
+            included_classes = [0,4,6,1,3,7,8,2,5]
+        elif i == 8:
+            included_classes = [0,4,6,1,3,7,8,2,5]
 
     # add classes incrementally in a random manner
     # else:
