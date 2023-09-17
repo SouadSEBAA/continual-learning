@@ -653,7 +653,7 @@ def run(args, verbose=False):
             tbl.add_row([f"Labeled {i}"] + [int(confusion_matrix[i][j]) for j in range(NUM_CLASSES)])
         print(tbl)
         print("\n\n"+"#"*60+"\nSUMMARY RESULTS: \n"+"#"*60)
-        print('\naverage accuracy over all {} contexts: {:.4f}'.format(args.contexts, average_accs))
+        # print('\naverage accuracy over all {} contexts: {:.4f}'.format(args.contexts, average_accs))
         print("\nPer class perfomance:")
         tbl = PrettyTable()
         tbl.field_names = [''] + list(range(0, NUM_CLASSES))
