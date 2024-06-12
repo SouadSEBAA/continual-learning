@@ -1,4 +1,5 @@
 import argparse
+from functools import partial
 
 ##-------------------------------------------------------------------------------------------------------------------##
 
@@ -52,6 +53,7 @@ def add_eval_options(parser, main=False, comparison=False, pretrain=False, compa
     if main:
         eval_params.add_argument('--pdf', action='store_true', help="generate pdf with results")
     eval_params.add_argument('--visdom', action='store_true', help="use visdom for on-the-fly plots")
+    eval_params.add_argument('--visdom-env-name', type=str, help="visdom environment name")
     eval_params.add_argument('--results-dict', action='store_true', help="output dict with results after each task")
     if not comparison:
         eval_params.add_argument('--loss-log', type=int, metavar="N",
@@ -345,6 +347,30 @@ def add_cl_options(parser, main=False, compare_all=False, compare_replay=False, 
                                   help="# of hidden units with generative classifier")
             templ_cl.add_argument('--fc-lay-gc', type=int, metavar="N", help="# fc-layers with generative classifier")
             templ_cl.add_argument('--z-dim-gc', type=int, metavar="N", help="size latent space generative classifier")
+    return parser
+
+##-------------------------------------------------------------------------------------------------------------------##
+
+def add_fl_options(parser, **kwargs):
+    fl_params = parser.add_argument_group('Federated Learning')
+    # fl_params.add_argument("--fed-avg", action="store_true", help="use FedAvg algorithm for Federated Learning")
+    fl_params.add_argument("--fl", action="store_true", help="use Federated Learning", default=False)
+    fl_params.add_argument('--fl-num-clients', type=int, help='number of federated clients', default=10)
+    fl_params.add_argument('--fl-global-iters', type=int, help='number of rounds of training (global)', default=10)
+    fl_params.add_argument('--fl-frac', type=float, help='fraction of clients participating per round', default=1.0)
+    fl_params.add_argument("--fl-iid", action="store_true", help="sample dataset in IID fashion (default)", default=True)
+    fl_params.add_argument("--fl-non-iid", action="store_true", help="sample dataset in non-IID fashion", default=False)
+    fl_params.add_argument("--fl-non-iid-2", action="store_true", help="sample dataset in non-IID fashion (2)", default=False)
+    fl_params.add_argument("--fl-num-shards", type=int, help="number of shards for non-IID distribution", default=20)
+    fl_params.add_argument("--fl-threaded", action="store_true", help="Use multithreading", default=False)
+    fl_params.add_argument('--fl-min-val', type=float, help='minimum percentage value for non-IID distribution (2)', default=0.05)
+    fl_params.add_argument('--fl-max-val', type=float, help='maximum percentage value for non-IID distribution (2)', default=0.15)
+    split_comma = partial(str.split, sep=',')
+    fl_params.add_argument('--fl-watch-clients', type=split_comma, help='FL clients to watch in visdom (example: --fl-watch-clients 0,1,3)', default=[])
+    fl_params.add_argument('--fl-acc-n', type=int, default=1024, help="# samples to evaluate accuracy (after each global round)")
+    fl_params.add_argument('--fl-acc-log', type=int, metavar="N", default=1, help="# global rounds after which to plot accuracy")
+    fl_params.add_argument('--fl-loss-log', type=int, default=1, help="# global rounds after which to plot loss")
+    fl_params.add_argument('--fl-vis-single-context', action="store_true", default=False, help="visualize contexts separately")
     return parser
 
 ##-------------------------------------------------------------------------------------------------------------------##

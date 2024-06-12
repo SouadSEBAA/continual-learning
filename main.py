@@ -4,6 +4,9 @@ import numpy as np
 import time
 import torch
 from torch import optim
+from federated.sampling import sample_iid, sample_noniid, sample_noniid2
+from federated.train import train_fl, train_fl_threaded
+from federated.utils import fl_exp_details
 # -custom-written libraries
 import utils
 from utils import checkattr
@@ -17,6 +20,7 @@ from params import options
 from params.param_stamp import get_param_stamp, get_param_stamp_from_args, visdom_name
 from params.param_values import set_method_options,check_for_errors,set_default_values
 from eval import evaluate, callbacks as cb
+import federated.callbacks as fl_cb
 from visual import visual_plt
 
 from prettytable import PrettyTable
@@ -36,6 +40,7 @@ def handle_inputs():
     parser = options.add_model_options(parser, **kwargs)
     parser = options.add_train_options(parser, **kwargs)
     parser = options.add_cl_options(parser, **kwargs)
+    parser = options.add_fl_options(parser, **kwargs)
     # Parse, process and check chosen options
     args = parser.parse_args()
     set_method_options(args)                         # -if a method's "convenience"-option is chosen, select components
@@ -353,22 +358,32 @@ def run(args, verbose=False):
         if verbose:
             print('\n\n'+' VISDOM '.center(70, '*'))
         from visdom import Visdom
-        env_name = "{exp}{con}-{sce}".format(exp=args.experiment, con=args.contexts, sce=args.scenario)
+        from time import time
+        import sys
+        if hasattr(args, "visdom_env_name"):
+            env_name = args.visdom_env_name
+        else:
+            t = int(time())
+            env_name = "{exp}{con}-{sce}-{t}".format(exp=args.experiment, con=args.contexts, sce=args.scenario, t=t)
         visdom = {'env': Visdom(env=env_name), 'graph': visdom_name(args)}
+        visdom["env"].text("<h3 style='color: black;'>{}</h3>".format(' '.join(sys.argv)), opts={"title": "Command"})
     else:
         visdom = None
 
     # Callbacks for reporting and visualizing loss
+
+    # Do not log loss to visdom if using FL
+    loss_visdom = None if args.fl else visdom
     generator_loss_cbs = [
-        cb._VAE_loss_cb(log=args.loss_log, visdom=visdom, replay=False if args.replay=="none" else True,
+        cb._VAE_loss_cb(log=args.loss_log, visdom=loss_visdom, replay=False if args.replay=="none" else True,
                         model=model if checkattr(args, 'feedback') else generator, contexts=args.contexts,
                         iters_per_context=args.iters if checkattr(args, 'feedback') else args.g_iters)
     ] if (train_gen or checkattr(args, 'feedback')) else [None]
     loss_cbs = [
         cb._gen_classifier_loss_cb(
-            log=args.loss_log, classes=config['classes'], visdom=visdom if args.loss_log>args.iters else None,
+            log=args.loss_log, classes=config['classes'], visdom=loss_visdom if args.loss_log>args.iters else None,
         ) if checkattr(args, 'gen_classifier') else cb._classifier_loss_cb(
-            log=args.loss_log, visdom=visdom, model=model, contexts=args.contexts, iters_per_context=args.iters,
+            log=args.loss_log, visdom=loss_visdom, model=model, contexts=args.contexts, iters_per_context=args.iters,
         )
     ] if (not checkattr(args, 'feedback')) else generator_loss_cbs
 
@@ -395,6 +410,60 @@ def run(args, verbose=False):
 
     #-------------------------------------------------------------------------------------------------#
 
+    #------------------------------#
+    #----- FEDERATED LEARNING -----#
+    #------------------------------#
+
+    # Is federated learning used?
+    if args.fl:
+        # Get sample function
+        if args.fl_non_iid_2:
+            sample_fn = sample_noniid2
+        elif args.fl_non_iid:
+            sample_fn = sample_noniid
+        elif args.fl_iid:
+            sample_fn = sample_iid
+        else:
+            raise ValueError("No sampling method selected")
+
+        # Get FL training function
+        if args.fl_threaded:
+            train_fl_fn = train_fl_threaded
+        else:
+            train_fl_fn = train_fl
+
+        # Callback functions to visualize accuracy after `args.fl_acc_log` global round
+        fl_global_eval_cbs = [
+            fl_cb._fl_global_eval_cb(
+                log=args.fl_acc_log,
+                test_datasets=test_datasets,
+                test_size=args.fl_acc_n,
+                visdom=visdom,
+            )
+        ]
+        # Callback functions to visualize accuracy for a certain client in a certain global round
+        fl_eval_cbs = [
+            fl_cb._fl_eval_cb(
+                log=args.acc_log,
+                test_datasets=test_datasets,
+                test_size=args.acc_n,
+                visdom=visdom,
+                iters_per_context=args.iters,
+                single_context=args.fl_vis_single_context,
+            )
+        ]
+        # Callback functions to visualize loss after `args.fl_loss_log` global rounds
+        fl_global_loss_cbs = [
+            fl_cb._fl_global_loss_cb(
+                log=args.fl_loss_log,
+                visdom=visdom,
+            )
+        ]
+
+        fl_exp_details(args.fl_iid, args.fl_num_clients, args.fl_frac, args.batch, args.iters, args.fl_global_iters)
+
+    #-------------------------------------------------------------------------------------------------#
+
     #--------------------#
     #----- TRAINING -----#
     #--------------------#
@@ -413,15 +482,46 @@ def run(args, verbose=False):
         train_fn = train_fromp if checkattr(args, 'fromp') else (
             train_gen_classifier if checkattr(args, 'gen_classifier') else train_cl
         )
+        # -generator iterations (replay)
+        g_iters = args.g_iters if hasattr(args, 'g_iters') else args.iters
         # -perform training
-        train_fn(
-            model, train_datasets, iters=args.iters, batch_size=args.batch, baseline=baseline,
-            sample_cbs=sample_cbs, eval_cbs=eval_cbs, loss_cbs=loss_cbs, context_cbs=context_cbs,
-            # -if using generative replay with a separate generative model:
-            generator=generator, gen_iters=args.g_iters if hasattr(args, 'g_iters') else args.iters,
-            gen_loss_cbs=generator_loss_cbs,
-            structure=args.structure,
-        )
+        # Use federated learning?
+        if args.fl:
+            train_fl_fn(
+                model,
+                train_datasets,
+                local_train_fn=train_fn,
+                sample_fn=sample_fn,
+                minval=args.fl_min_val,
+                maxval=args.fl_max_val,
+                num_shards=args.fl_num_shards,
+                global_iters=args.fl_global_iters,
+                local_iters=args.iters,
+                frac=args.fl_frac,
+                num_clients=args.fl_num_clients,
+                batchs_size=args.batch,
+                baseline=baseline,
+                loss_cbs=loss_cbs,
+                eval_cbs=fl_eval_cbs,
+                sample_cbs=sample_cbs,
+                context_cbs=context_cbs,
+                global_eval_cbs=fl_global_eval_cbs,
+                global_loss_cbs=fl_global_loss_cbs,
+                generator=generator,
+                gen_iters=g_iters,
+                gen_loss_cbs=generator_loss_cbs,
+                structure=args.structure,
+                watch_clients=args.fl_watch_clients,
+            )
+        else:
+            train_fn(
+                model, train_datasets, iters=args.iters, batch_size=args.batch, baseline=baseline,
+                sample_cbs=sample_cbs, eval_cbs=eval_cbs, loss_cbs=loss_cbs, context_cbs=context_cbs,
+                # -if using generative replay with a separate generative model:
+                generator=generator, gen_iters=g_iters,
+                gen_loss_cbs=generator_loss_cbs,
+                structure=args.structure,
+            )
         # -get total training-time in seconds, write to file and print to screen
         if args.time:
             training_time = time.time() - start

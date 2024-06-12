@@ -9,8 +9,7 @@ def visualize_images(tensor, title, env, win=None, w=400, h=400, nrow=8):
     win = title if win is None else win
     _WINDOW_CASH[win] = env.images(tensor, win=_WINDOW_CASH.get(win), nrow=nrow, opts=options)
 
-
-def visualize_scalars(scalars, names, title, iteration, env, ylabel=None):
+def _visualize_scalars(scalars, names, title, iteration, env, xlabel, ylabel=None):
     '''Continually update line-plot with numbers arriving in [scalars].'''
     assert len(scalars) == len(names)
 
@@ -24,7 +23,7 @@ def visualize_scalars(scalars, names, title, iteration, env, ylabel=None):
     # Plotting options
     options = dict(
         fillarea=False, legend=names, width=400, height=400,
-        xlabel='Iterations', ylabel=title if (ylabel is None) else ylabel, title=title,
+        xlabel=xlabel, ylabel=title if (ylabel is None) else ylabel, title=title,
         marginleft=30, marginright=30, marginbottom=80, margintop=30,
     )
 
@@ -33,3 +32,8 @@ def visualize_scalars(scalars, names, title, iteration, env, ylabel=None):
         env.line(X=X, Y=Y, win=_WINDOW_CASH[title], opts=options, update='append')
     else:
         _WINDOW_CASH[title] = env.line(X=X, Y=Y, opts=options)
+    # Save env
+    env.save([env.env])
+
+def visualize_scalars(scalars, names, title, iteration, env, ylabel=None):
+    return _visualize_scalars(scalars, names, title, iteration, env, xlabel="Iterations", ylabel=ylabel)

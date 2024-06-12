@@ -475,6 +475,8 @@ def train_cl(model, train_datasets, iters=2000, batch_size=32, baseline='none',
         cxts_results['binary FPR'],
     )
 
+    return loss_dict
+
 #------------------------------------------------------------------------------------------------------------#
 
 def train_fromp(model, train_datasets, iters=2000, batch_size=32,
